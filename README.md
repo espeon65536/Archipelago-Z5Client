@@ -1,4 +1,4 @@
-# Archipelago-z5Client
+# Archipelago-Z5Client
 A Z5 client designed for use with the Archipelago implementation of the Ocarina of Time randomizer.
 
 ## Installation
