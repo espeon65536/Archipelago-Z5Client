@@ -4,6 +4,7 @@ const path = require('path');
 const lzma = require('lzma-native');
 const yaml = require('js-yaml');
 const bsdiff = require('bsdiff-node');
+const md5 = require('md5');
 const childProcess = require('child_process');
 
 // Perform certain actions during the install process
@@ -75,9 +76,14 @@ app.whenReady().then(async () => {
 
   // Load the config into memory
   const config = JSON.parse(fs.readFileSync(configPath).toString());
+  const baseRomHash = '5bd1fe107bf8106b2ab6650abecd54d6';
 
-  // Prompt for base rom file if not present in config or if missing from disk
-  if (!config.hasOwnProperty('baseRomPath') || !fs.existsSync(config.baseRomPath)) {
+  // Prompt for base rom file if not present in config, missing from disk, or it fails the hash check
+  if (
+    !config.hasOwnProperty('baseRomPath') || // Base ROM not present in config file
+    !fs.existsSync(config.baseRomPath) || // Base ROM not present on file system
+    md5(fs.readFileSync(config.baseRomPath)) !== baseRomHash // Base ROM fails hash check
+  ) {
     let baseRomPath = dialog.showOpenDialogSync(null, {
       title: 'Select base ROM',
       buttonLabel: 'Choose ROM',
@@ -97,12 +103,21 @@ app.whenReady().then(async () => {
     if (arg.substr(-5).toLowerCase() === '.apz5') {
       if (config.hasOwnProperty('baseRomPath') && fs.existsSync(config.baseRomPath)) {
         if (!fs.existsSync(arg)) { break; }
+        if (md5(fs.readFileSync(confid.baseRomPath))) {
+          dialog.showMessageBoxSync({
+            type: 'info',
+            title: 'Invalid Base ROM',
+            message: 'The ROM file for your game could not be created because the base ROM is invalid.',
+          });
+          break;
+        }
+
         const patchFilePath = path.join(__dirname, 'patch.bsdiff');
         const romFilePath = path.join(path.dirname(arg),
           `${path.basename(arg).substr(0, path.basename(arg).length - 5)}.sfc`);
         const apz5Buffer = await lzma.decompress(fs.readFileSync(arg));
         const apz5 = yaml.load(apz5Buffer);
-        sharedData.apServerAddress = apz5.meta.server | null;
+        sharedData.apServerAddress = apz5.meta.server ? apz5.meta.server : null;
         fs.writeFileSync(patchFilePath, apz5.patch);
         await bsdiff.patch(config.baseRomPath, romFilePath, patchFilePath);
         fs.rmSync(patchFilePath);
