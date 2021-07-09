@@ -6,6 +6,7 @@ const yaml = require('js-yaml');
 const bsdiff = require('bsdiff-node');
 const md5 = require('md5');
 const childProcess = require('child_process');
+const net = require('net');
 
 // Perform certain actions during the install process
 if (require('electron-squirrel-startup')) {
@@ -179,18 +180,19 @@ const logFile = fs.openSync(path.join(process.env.APPDATA, 'z5client-logs', `${n
 fs.writeFileSync(logFile, `[${new Date().toLocaleString()}] Log begins.`);
 ipcMain.handle('writeToLog', (event, data) => fs.writeFileSync(logFile, `[${new Date().toLocaleString()}] ${data}`));
 
-// TODO: REMOVE BELOW! THIS IS FOR TESTING
-const net = require('net');
-const host = '127.0.0.1';
+// Host a socket server used for communicating with the N64
+const hostname = '127.0.0.1';
 const port = 28920;
-const client = new net.Socket();
-client.connect(port, host, () => {
-  console.log('Connection established.')
-  client.write('Hello!')
-});
+net.createServer((socket) => {
+  console.log(`Connection established with ${socket.remoteAddress}:${socket.remotePort}`);
+  socket.on('data', (data) => {
+    console.log(`Received from ${socket.remoteAddress}:${socket.remotePort}:\n${data}`);
+    socket.write(`Server received: ${data}`);
+  });
+  socket.on('close', (data) => {
+    console.log(`Closed connection with ${socket.remoteAddress}:${socket.remotePort}`);
+  });
+  setTimeout(() => socket.write('Hello!'), 5000)
+}).listen(port, hostname);
 
-client.on('data', (data) => {
-  console.log(`Data: ${data}`);
-});
-
-client.on('close', () => console.log('Connection closed.'));
+console.log(`Server listening on ${hostname}:${port}`);
