@@ -183,18 +183,23 @@ ipcMain.handle('writeToLog', (event, data) => fs.writeFileSync(logFile, `[${new 
 // Host a socket server used for communicating with the N64
 const hostname = '127.0.0.1';
 const port = 28920;
+const socketMessage = (msg) => `${msg}\r\n`;
 net.createServer((socket) => {
   console.log(`Connection established with ${socket.remoteAddress}:${socket.remotePort}`);
+
   socket.on('data', (data) => {
     console.log(`Received from ${socket.remoteAddress}:${socket.remotePort}:\n${data}`);
     socket.write(`Server received: ${data}`);
   });
+
   socket.on('close', (data) => {
     console.log(`Closed connection with ${socket.remoteAddress}:${socket.remotePort}`);
   });
+
+  socket.on('error', (err) => console.log(err));
+
   setTimeout(() => {
     console.log('Saying hello to new client.');
-    socket.write('Hello!');
   }, 3000);
 }).listen(port, hostname);
 

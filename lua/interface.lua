@@ -2,7 +2,7 @@ local socket = require("socket.core")
 local connection
 local host = '127.0.0.1'
 local port = 28920
-local connectionClosed = false
+local clientConnected = false
 
 local connectToAPClient = function()
 	-- Open a TCP socket
@@ -14,6 +14,7 @@ local connectToAPClient = function()
 	end
 
 	-- Establish connection to socket server hosted on AP Client
+	connection:setoption('linger', {['on']=false, ['timeout']=0})
 	local returnCode, errorMessage = connection:connect(host, port)
 	if (returnCode == nil) then
 		print('Error while connecting: ' .. errorMessage)
@@ -26,11 +27,10 @@ local connectToAPClient = function()
 end
 
 local runMessageWatcher = coroutine.wrap(function()
-	while 1 do
+	while true do
 		(function()
-			print("We loopin' in this bitch!")
 			-- If the connection has been closed, stop looping and end the coroutine
-			if connectionClosed then
+			if not clientConnected then
 				print('Connection has been closed. Attempting to reconnect.')
 				if not connectToAPClient() then
 					print('Unable to re-establish connection to AP Client. Please make sure it is running, ' ..
@@ -39,37 +39,35 @@ local runMessageWatcher = coroutine.wrap(function()
 				end
 			end
 
-			local msg, status = connection:receive('*l')
+			local msg, status = connection:receive()
 
 			-- If the server has closed the connection, do nothing
 			if status == 'closed' then
 				print('Lost connection to AP Client.')
 				connection:close()
-				connectionClosed = true
+				clientConnected = false
 				return
 			end
 
 			-- If no message was received before a timeout, do nothing
 			if status == 'timeout' then return end
 
-			-- TODO: What happens if an empty message body is received?
-			if not msg then
-				print(status)
-				return
-			end
+			-- If the message is empty, also do nothing
+			if not msg then return end
 
-			-- Handle the message
+			-- TODO: Handle the message
 			print(msg)
-		end)()
 
+		end)()
+		coroutine.yield()
 	end
 end)
 
 -- Connect to the AP Client's socket server
-connectToAPClient()
+clientConnected = connectToAPClient()
 
 -- Wait for incoming messages
-while 1 do
+while true do
 	-- If a message bas been received on the socket connection, act on it
 	runMessageWatcher();
 
