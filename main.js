@@ -6,7 +6,6 @@ const yaml = require('js-yaml');
 const bsdiff = require('bsdiff-node');
 const md5 = require('md5');
 const childProcess = require('child_process');
-const http = require('http');
 
 // Perform certain actions during the install process
 if (require('electron-squirrel-startup')) {
@@ -180,18 +179,18 @@ const logFile = fs.openSync(path.join(process.env.APPDATA, 'z5client-logs', `${n
 fs.writeFileSync(logFile, `[${new Date().toLocaleString()}] Log begins.`);
 ipcMain.handle('writeToLog', (event, data) => fs.writeFileSync(logFile, `[${new Date().toLocaleString()}] ${data}`));
 
-// Interprocess communication with the renderer process, used for communication with BizHawk
-
-// Host a WebSocket server for the LUA script to connect to
-const luaPort = 28920;
-const server = http.createServer((request, response) => {
-
+// TODO: REMOVE BELOW! THIS IS FOR TESTING
+const net = require('net');
+const host = '127.0.0.1';
+const port = 28920;
+const client = new net.Socket();
+client.connect(port, host, () => {
+  console.log('Connection established.')
+  client.write('Hello!')
 });
-server.on('upgrade', (req, socket) => {
-  if (req.headers['upgrade'] !== 'websocket') {
-    // Reject non-WebSocket upgrade requests
-    socket.end('HTTP/1.1 400 Bad Request');
-    return;
-  }
+
+client.on('data', (data) => {
+  console.log(`Data: ${data}`);
 });
-server.listen(luaPort);
+
+client.on('close', () => console.log('Connection closed.'));
