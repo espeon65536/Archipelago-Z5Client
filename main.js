@@ -192,7 +192,10 @@ net.createServer((socket) => {
   socket.on('close', (data) => {
     console.log(`Closed connection with ${socket.remoteAddress}:${socket.remotePort}`);
   });
-  setTimeout(() => socket.write('Hello!'), 5000)
+  setTimeout(() => {
+    console.log('Saying hello to new client.');
+    socket.write('Hello!');
+  }, 3000);
 }).listen(port, hostname);
 
 console.log(`Server listening on ${hostname}:${port}`);
