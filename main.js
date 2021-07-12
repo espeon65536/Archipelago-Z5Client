@@ -197,10 +197,6 @@ net.createServer((socket) => {
   });
 
   socket.on('error', (err) => console.log(err));
-
-  setTimeout(() => {
-    console.log('Saying hello to new client.');
-  }, 3000);
 }).listen(port, hostname);
 
 console.log(`Server listening on ${hostname}:${port}`);
