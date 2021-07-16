@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const lzma = require('lzma-native');
 const yaml = require('js-yaml');
-const bsdiff = require('bsdiff-node');
 const md5 = require('md5');
 const childProcess = require('child_process');
 const net = require('net');
@@ -66,6 +65,23 @@ const createWindow = () => {
   });
 
   win.loadFile('index.html');
+  return win;
+};
+
+const createPatchingWindow = () => {
+  const win = new BrowserWindow({
+    width: 400,
+    height: 75,
+    autoHideMenuBar: true,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+    },
+  });
+
+  win.loadFile('patching.html');
+  return win;
 };
 
 app.whenReady().then(async () => {
@@ -99,12 +115,14 @@ app.whenReady().then(async () => {
     }
   }
 
+  let patchingWindow = null;
+
   // Create a new ROM from the patch file if the patch file is provided and the base rom is known
   for (const arg of process.argv) {
     if (arg.substr(-5).toLowerCase() === '.apz5') {
       if (config.hasOwnProperty('baseRomPath') && fs.existsSync(config.baseRomPath)) {
         if (!fs.existsSync(arg)) { break; }
-        if (md5(fs.readFileSync(confid.baseRomPath))) {
+        if (md5(fs.readFileSync(config.baseRomPath)) !== baseRomHash) {
           dialog.showMessageBoxSync({
             type: 'info',
             title: 'Invalid Base ROM',
@@ -113,15 +131,12 @@ app.whenReady().then(async () => {
           break;
         }
 
-        const patchFilePath = path.join(__dirname, 'patch.bsdiff');
-        const romFilePath = path.join(path.dirname(arg),
-          `${path.basename(arg).substr(0, path.basename(arg).length - 5)}.sfc`);
-        const apz5Buffer = await lzma.decompress(fs.readFileSync(arg));
-        const apz5 = yaml.load(apz5Buffer);
-        sharedData.apServerAddress = apz5.meta.server ? apz5.meta.server : null;
-        fs.writeFileSync(patchFilePath, apz5.patch);
-        await bsdiff.patch(config.baseRomPath, romFilePath, patchFilePath);
-        fs.rmSync(patchFilePath);
+        // Patch the .apz5
+        patchingWindow = createPatchingWindow();
+        await new Promise((r) => setTimeout(r, 250)); // Wait 250 milliseconds for the patching window to render
+        const outPath = path.join(path.dirname(arg), `${path.basename(arg).substr(0, path.basename(arg).length - 5)}.n64`);
+        childProcess.execFileSync(path.join(__dirname, 'oot-patcher', 'Patch.exe'), [config.baseRomPath, arg, outPath]);
+
         // If a custom launcher is specified, attempt to launch the ROM file using the specified loader
         if (config.hasOwnProperty('launcherPath') && fs.existsSync(config.launcherPath)) {
           childProcess.spawn(config.launcherPath, [romFilePath], { detached: true });
@@ -129,7 +144,7 @@ app.whenReady().then(async () => {
         }
         // If no custom launcher is specified, launch the rom with explorer on Windows
         if (process.platform === 'win32') {
-          childProcess.spawn('explorer', [romFilePath], { detached: true });
+          childProcess.spawn('explorer', [outPath], { detached: true });
         }
       }
       break;
@@ -137,10 +152,12 @@ app.whenReady().then(async () => {
   }
 
   createWindow();
+  if (patchingWindow) { patchingWindow.close(); }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
+      if (patchingWindow) { patchingWindow.close(); }
     }
   });
 
