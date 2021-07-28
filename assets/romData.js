@@ -1,6 +1,3 @@
-// TODO: Figure this out
-const GET_ITEM_ADDRESS = 0x00;
-
 const items = {
   'Bombs (5)': 0x01,
   'Deku Nuts (5)': 0x02,
