@@ -66,9 +66,9 @@ end)
 
 -- Sends pipe delimited location checks like: locationChecks|
 local sendLocationChecks = function()
-    local message = "locationChecks|"
+    local message = "locationChecks"
     for location_name, checked in pairs(lib.getLocationChecks()) do
-        message = message .. location_name .. "|"
+        message = message .. "|" .. location_name .. "|"
         if checked then
             message = message .. "1"
         else
