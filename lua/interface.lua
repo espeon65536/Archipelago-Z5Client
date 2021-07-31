@@ -1,5 +1,5 @@
 local socket = require("socket.core")
-local ootLib = require("ootLib")
+local lib = require("lib")
 local connection
 local host = '127.0.0.1'
 local port = 28920
@@ -35,7 +35,7 @@ local runMessageWatcher = coroutine.wrap(function()
 				print('Connection has been closed. Attempting to reconnect.')
 				if not connectToAPClient() then
 					print('Unable to re-establish connection to AP Client. Please make sure it is running, ' ..
-							'then restart this LUA script.')
+							'then restart this script.')
 					return
 				end
 			end
@@ -44,7 +44,7 @@ local runMessageWatcher = coroutine.wrap(function()
 
 			-- If the server has closed the connection, do nothing
 			if status == 'closed' then
-				print('Lost connection to AP Client.')
+				print('Lost connection to AP Client. Make sure the client is running, then restart this script.')
 				connection:close()
 				clientConnected = false
 				return
@@ -64,14 +64,36 @@ local runMessageWatcher = coroutine.wrap(function()
 	end
 end)
 
+-- Sends pipe delimited location checks like: locationChecks|
+local sendLocationChecks = function()
+    local message = "locationChecks|"
+    for location_name, checked in pairs(lib.getLocationChecks()) do
+        message = message .. location_name .. "|"
+        if checked then
+            message = message .. "1"
+        else
+            message = message .. "0"
+        end
+    end
+    connection:send(message)
+end
+
 -- Connect to the AP Client's socket server
 clientConnected = connectToAPClient()
 
 -- Wait for incoming messages
 while true do
-	-- If a message bas been received on the socket connection, act on it
-	runMessageWatcher();
+    if not clientConnected then break end
+
+	-- If a the client is connected and a message bas been received on the socket connection, act on it
+	if clientConnected then runMessageWatcher() end
 
 	-- Advance the emulator by one frame
+	emu.frameadvance()
+
+    -- If the client is connected, send location checks to the server
+	if clientConnected then sendLocationChecks() end
+
+    -- Advance the emulator by one frame
 	emu.frameadvance()
 end
