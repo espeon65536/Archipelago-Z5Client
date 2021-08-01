@@ -19,3 +19,11 @@ contextBridge.exposeInMainWorld('ipc', {
 contextBridge.exposeInMainWorld('logging', {
   writeToLog: (data) => ipcRenderer.invoke('writeToLog', data),
 });
+
+contextBridge.exposeInMainWorld('oot', {
+  receiveItem: (requestId, itemOffset) => ipcRenderer.send('receiveItem', requestId, itemOffset),
+  readyToReceiveItem: (requestId) => ipcRenderer.send('readyToReceiveItem', requestId),
+  getReceivedItemCount: (requestId) => ipcRenderer.send('getReceivedItemCount', requestId),
+  setNames: (requestId, namesObj) => ipcRenderer.send('setNames', requestId, namesObj),
+  receive: (channel, callback) => ipcRenderer.on(channel, (event, ...args) => callback(...args)),
+});

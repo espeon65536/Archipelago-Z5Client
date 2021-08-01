@@ -13,10 +13,6 @@ let reconnectInterval = null;
 let checkedLocations = [];
 let missingLocations = [];
 
-// TODO: Will OoT be a remote items game?
-// Data about remote items
-const scoutedLocations = {};
-
 const CLIENT_STATUS = {
   CLIENT_UNKNOWN: 0,
   CLIENT_READY: 10,
@@ -166,22 +162,6 @@ const connectToServer = (address) => {
               ir.item === item.item && ir.location === item.location && ir.player === item.player
             )) { return; }
             itemsReceived.push(item);
-          });
-          break;
-
-        case 'LocationInfo':
-          // TODO: Will OoT be a remote items game?
-          // This packet is received as a confirmation from the server that a location has been scouted.
-          // Once the server confirms a scout, it sends the confirmed data back to the client. Here, we
-          // store the confirmed scouted locations in an object.
-          command.locations.forEach((location) => {
-            // location = [ item, location, player ]
-            if (!scoutedLocations.hasOwnProperty(location.location)) {
-              scoutedLocations[location.location] = {
-                item: location[0],
-                player: location[2],
-              };
-            }
           });
           break;
 

@@ -7,6 +7,9 @@ const md5 = require('md5');
 const childProcess = require('child_process');
 const net = require('net');
 
+// Array to hold socket clients
+const socketClients = {};
+
 // Perform certain actions during the install process
 if (require('electron-squirrel-startup')) {
   if (process.platform === 'win32') {
@@ -202,18 +205,50 @@ const hostname = '127.0.0.1';
 const port = 28920;
 const socketMessage = (msg) => `${msg}\r\n`;
 net.createServer((socket) => {
-  console.log(`Connection established with ${socket.remoteAddress}:${socket.remotePort}`);
+  const socketId = Math.random() * 1000000000;
 
   socket.on('data', (data) => {
-    console.log(`Received from ${socket.remoteAddress}:${socket.remotePort}:\n${data}`);
-    socket.write(`Server received: ${data}`);
+    const messageParts = data.toString().split('|');
+
+    // How to send messages to the connected client
+    // socket.write(socketMessage(data));
   });
 
-  socket.on('close', (data) => {
-    console.log(`Closed connection with ${socket.remoteAddress}:${socket.remotePort}`);
+  // On close, remove socket from list of active clients
+  socket.on('close', (data) => delete socketClients[socketId]);
+
+  // On error, remove socket from list of active clients
+  socket.on('error', (err) => {
+    delete socketClients[socketId];
+    console.log(err)
   });
 
-  socket.on('error', (err) => console.log(err));
+  // Store the client in the list of active clients
+  socketClients[socketId] = socket;
+
+  Object.values(socketClients).forEach((s) => s.write(socketMessage(`New client connected: ${socketId}`)));
 }).listen(port, hostname);
 
-console.log(`Server listening on ${hostname}:${port}`);
+// Interprocess communication with the renderer process, used for communication with OoT LUA Script
+ipcMain.on('receiveItem', (event, requestId, itemOffset) => {
+  Object.values(socketClients).forEach((socket) => {
+    socket.write(socketMessage(`${requestId}|receiveItem|${itemOffset}`));
+  });
+});
+ipcMain.on('readyToReceiveItem', (event, requestId) => {
+  Object.values(socketClients).forEach((socket) => {
+    socket.write(socketMessage(`${requestId}|readyToReceiveItem`));
+  });
+});
+ipcMain.on('getReceivedItemCount', (event, requestId) => {
+  Object.values(socketClients).forEach((socket) => {
+    socket.write(socketMessage(`${requestId}|getReceivedItemCount`));
+  });
+});
+ipcMain.on('setNames', (event, requestId, namesObj) => {
+  Object.values(socketClients).forEach((socket) => {
+    let commandStr = `${requestId}|setNames`;
+    Object.keys(namesObj).forEach((key) => commandStr += `|${key}|${namesObj[key]}`);
+    socket.write(socketMessage(commandStr));
+  });
+});

@@ -69,7 +69,10 @@ local runMessageWatcher = coroutine.wrap(function()
 			-- Different commands have different expectations of arguments, described in comments where each
 			-- command is handled
 			local messageParts = stringSplit(msg, '|')
-			if not messageParts[0] or not messageParts[1] then return end
+			if not messageParts[0] or not messageParts[1] then
+			    print(msg)
+			    return
+            end
 			local requestId = messageParts[0]
             local command = messageParts[1]
 
@@ -91,7 +94,12 @@ local runMessageWatcher = coroutine.wrap(function()
             -- Returns message format: "requestId|readyStatus"
 			if command == 'readyToReceiveItem' then
                 local readyForItem = lib.safeToReceiveItem()
-                local readyStatus = if lib.safeToReceiveItem() then '1' else '0' end
+                local readyStatus = ""
+                if lib.safeToReceiveItem() then
+                    readyStatus = "1"
+                else
+                    readyStatus = "0"
+                end
                 connection:send(requestId .. '|' .. readyStatus)
 			    return
 			end
@@ -103,7 +111,7 @@ local runMessageWatcher = coroutine.wrap(function()
                 return
             end
 
-            -- Expects message format: "requestId|player1Slot|player1Name|player2Slot|player2Name|..."
+            -- Expects message format: "requestId|setNames|player1Slot|player1Name|player2Slot|player2Name|..."
             -- Returns message format: "requestId"
             if command == 'setNames' then
                 print('Command: setNames\nRaw: ' .. msg)
