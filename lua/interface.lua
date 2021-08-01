@@ -115,7 +115,7 @@ local runMessageWatcher = coroutine.wrap(function()
 	end
 end)
 
--- Sends pipe delimited location checks like: locationChecks|
+-- Sends pipe delimited location checks in format: "locationChecks|location1Name|location1Checked|..."
 local sendLocationChecks = function()
     local message = "locationChecks"
     for location_name, checked in pairs(lib.getLocationChecks()) do
