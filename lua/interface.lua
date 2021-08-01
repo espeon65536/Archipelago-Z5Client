@@ -5,6 +5,14 @@ local host = '127.0.0.1'
 local port = 28920
 local clientConnected = false
 
+local stringSplit = function(str, sep)
+    local parts = {}
+    for str in string.gmatch(str, "([^" .. sep .. "]+)") do
+        table.insert(parts, str)
+    end
+    return parts
+end
+
 local connectToAPClient = function()
 	-- Open a TCP socket
 	print('Connecting to AP client at ' .. host .. ':' .. port)
@@ -56,9 +64,52 @@ local runMessageWatcher = coroutine.wrap(function()
 			-- If the message is empty, also do nothing
 			if not msg then return end
 
-			-- TODO: Handle the message
-			print(msg)
+			-- Handle the message
+			-- Message structure: requestId|command|arg1|arg2|...
+			-- Different commands have different expectations of arguments, described in comments where each
+			-- command is handled
+			local messageParts = stringSplit(msg, '|')
+			if not messageParts[0] or not messageParts[1] then return end
+			local requestId = messageParts[0]
+            local command = messageParts[1]
 
+            -- Expects message format: "requestId|receiveItem|itemOffset"
+            -- Returns message format: "requestId|successful"
+		    if command == 'receiveItem' then
+                local itemOffset = messageParts[2]
+
+		        if not lib.safeToReceiveItem() then
+		            connection:send(requestId .. "|0")
+		            return
+		        end
+		        lib.receiveItem(lib.localPlayerNumber,tonumber(itemOffset))
+		        connection:send(requestId .. '|1')
+			    return
+			end
+
+            -- Expects message format: "requestId|readyToReceiveItem"
+            -- Returns message format: "requestId|readyStatus"
+			if command == 'readyToReceiveItem' then
+                local readyForItem = lib.safeToReceiveItem()
+                local readyStatus = if lib.safeToReceiveItem() then '1' else '0' end
+                connection:send(requestId .. '|' .. readyStatus)
+			    return
+			end
+
+            -- Expects message format: "requestId|getReceivedItemCount"
+            -- Returns message format: "requestId|receivedItemCount"
+            if command == 'getReceivedItemCount' then
+                connection:send(requestId .. '|' .. lib.getReceivedItemCount())
+                return
+            end
+
+            -- Expects message format: "requestId|player1Slot|player1Name|player2Slot|player2Name|..."
+            -- Returns message format: "requestId"
+            if command == 'setNames' then
+                print('Command: setNames\nRaw: ' .. msg)
+                connection:send(requestId)
+                return
+            end
 		end)()
 		coroutine.yield()
 	end

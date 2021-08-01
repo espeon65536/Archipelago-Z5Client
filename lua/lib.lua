@@ -24,7 +24,12 @@ lib.safeToReceiveItem = function()
     local scene
     _, details = ootController.get_current_game_mode()
     scene = ootController.ctx:rawget('cur_scene'):rawget()
-    return details.name == "Normal Gameplay" and shop_scenes[scene] == nil
+
+    local playerQueued = mainmemory.read_u16_be(incoming_player_addr)
+    local itemQueued = mainmemory.read_u16_be(incoming_item_addr)
+
+    -- Safe to receive an item if the scene is normal, player is not in a shop, and no item is already queued
+    return details.name == "Normal Gameplay" and shop_scenes[scene] == nil and playerQueued == 0 and itemQueued == 0
 end
 
 -- Find the number of items received by the ROM
