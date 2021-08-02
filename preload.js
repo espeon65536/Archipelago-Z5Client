@@ -1,18 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld('ipc', {
-  send: (channel, data) => {
-    const validChannels = [ 'requestSharedData', 'setLauncher' ];
-    if (validChannels.includes(channel)) {
-      ipcRenderer.send(channel, data);
-    }
-  },
-  receive: (channel, callback) => {
-    const validChannels = ['sharedData'];
-    if (validChannels.includes(channel)) {
-      ipcRenderer.on(channel, (event, ...args) => callback(...args));
-    }
-  },
+// Client config
+contextBridge.exposeInMainWorld('clientConfig', {
+  setLauncher: (launcher) => ipcRenderer.send('setLauncher', launcher),
 });
 
 // Used for logging
@@ -20,10 +10,18 @@ contextBridge.exposeInMainWorld('logging', {
   writeToLog: (data) => ipcRenderer.invoke('writeToLog', data),
 });
 
+// OoT Interaction
 contextBridge.exposeInMainWorld('oot', {
+  // Functions callable by renderer to cause IPCMain to perform an action
   receiveItem: (requestId, itemOffset) => ipcRenderer.send('receiveItem', requestId, itemOffset),
-  readyToReceiveItem: (requestId) => ipcRenderer.send('readyToReceiveItem', requestId),
+  isItemReceivable: (requestId) => ipcRenderer.send('isItemReceivable', requestId),
   getReceivedItemCount: (requestId) => ipcRenderer.send('getReceivedItemCount', requestId),
   setNames: (requestId, namesObj) => ipcRenderer.send('setNames', requestId, namesObj),
-  receive: (channel, callback) => ipcRenderer.on(channel, (event, ...args) => callback(...args)),
+
+  // Function listenable by renderer to allow IPCMain to report a completed request
+  requestComplete: (callback) => ipcRenderer.on('requestComplete', (event, requestId, ...args) =>
+    callback(requestId, ...args)),
+
+  // Function listenable by renderer to allow IPCMain to report a connected or disconnected client
+  deviceConnected: (callback) => ipcRenderer.on('deviceConnected', (event, connected) => callback(connected)),
 });

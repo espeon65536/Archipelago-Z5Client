@@ -10,6 +10,9 @@ const net = require('net');
 // Array to hold socket clients
 const socketClients = {};
 
+// Main UI window the user will interact with, used for IPC
+let uiWindow = null;
+
 // Perform certain actions during the install process
 if (require('electron-squirrel-startup')) {
   if (process.platform === 'win32') {
@@ -154,12 +157,12 @@ app.whenReady().then(async () => {
     }
   }
 
-  createWindow();
+  uiWindow = createWindow();
   if (patchingWindow) { patchingWindow.close(); }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+      uiWindow = createWindow();
       if (patchingWindow) { patchingWindow.close(); }
     }
   });
@@ -171,11 +174,7 @@ app.whenReady().then(async () => {
   });
 });
 
-const sharedData = {};
-// Interprocess communication with the renderer process, all are asynchronous events
-ipcMain.on('requestSharedData', (event, args) => {
-  event.sender.send('sharedData', sharedData);
-});
+// IPC listener for client config
 ipcMain.on('setLauncher', (event, args) => {
   // Allow the user to specify a program to launch the ROM
   const configPath = path.join(process.env.APPDATA, 'z5client.config.json');
@@ -192,12 +191,14 @@ ipcMain.on('setLauncher', (event, args) => {
   }
 });
 
-// Interprocess communication with the renderer process, used for logging
+// Create log file and open it for writing
 if (!fs.existsSync(path.join(process.env.APPDATA, 'z5client-logs'))) {
   fs.mkdirSync(path.join(process.env.APPDATA, 'z5client-logs'));
 }
 const logFile = fs.openSync(path.join(process.env.APPDATA, 'z5client-logs', `${new Date().getTime()}.txt`), 'w');
 fs.writeFileSync(logFile, `[${new Date().toLocaleString()}] Log begins.`);
+
+// IPC listener for logging
 ipcMain.handle('writeToLog', (event, data) => fs.writeFileSync(logFile, `[${new Date().toLocaleString()}] ${data}`));
 
 // Host a socket server used for communicating with the N64
@@ -209,24 +210,40 @@ net.createServer((socket) => {
 
   socket.on('data', (data) => {
     const messageParts = data.toString().split('|');
+    const messageType = messageParts.splice(0,1)[0];
+    switch (messageType) {
+      case 'requestComplete':
+        const requestId = messageParts.splice(0,1)[0];
+        uiWindow.webContents.send('requestComplete', requestId, messageParts)
+        break;
 
-    // How to send messages to the connected client
-    // socket.write(socketMessage(data));
+      default:
+        console.warn(`Unknown message type received: ${messageType} with data:\n${JSON.stringify(messageParts)}`);
+        break;
+    }
   });
 
   // On close, remove socket from list of active clients
-  socket.on('close', (data) => delete socketClients[socketId]);
+  socket.on('close', (data) =>{
+    delete socketClients[socketId];
+    if (Object.keys(socketClients).length === 0) {
+      uiWindow.webContents.send('deviceConnected', false);
+    }
+  });
 
   // On error, remove socket from list of active clients
   socket.on('error', (err) => {
     delete socketClients[socketId];
+    if (Object.keys(socketClients).length === 0) {
+      uiWindow.webContents.send('deviceConnected', false);
+    }
     console.log(err)
   });
 
   // Store the client in the list of active clients
   socketClients[socketId] = socket;
 
-  Object.values(socketClients).forEach((s) => s.write(socketMessage(`New client connected: ${socketId}`)));
+  uiWindow.webContents.send('deviceConnected', true);
 }).listen(port, hostname);
 
 // Interprocess communication with the renderer process, used for communication with OoT LUA Script
@@ -235,9 +252,9 @@ ipcMain.on('receiveItem', (event, requestId, itemOffset) => {
     socket.write(socketMessage(`${requestId}|receiveItem|${itemOffset}`));
   });
 });
-ipcMain.on('readyToReceiveItem', (event, requestId) => {
+ipcMain.on('isItemReceivable', (event, requestId) => {
   Object.values(socketClients).forEach((socket) => {
-    socket.write(socketMessage(`${requestId}|readyToReceiveItem`));
+    socket.write(socketMessage(`${requestId}|isItemReceivable`));
   });
 });
 ipcMain.on('getReceivedItemCount', (event, requestId) => {

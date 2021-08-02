@@ -77,65 +77,60 @@ local runMessageWatcher = coroutine.wrap(function()
             local command = messageParts[1]
 
             -- Expects message format: "requestId|receiveItem|itemOffset"
-            -- Returns message format: "requestId|successful"
+            -- Returns message format: "requestComplete|requestId"
 		    if command == 'receiveItem' then
                 local itemOffset = messageParts[2]
-
-		        if not lib.safeToReceiveItem() then
-		            connection:send(requestId .. "|0")
-		            return
-		        end
 		        lib.receiveItem(lib.localPlayerNumber,tonumber(itemOffset))
-		        connection:send(requestId .. '|1')
+		        connection:send('requestComplete|' .. requestId)
 			    return
 			end
 
-            -- Expects message format: "requestId|readyToReceiveItem"
-            -- Returns message format: "requestId|readyStatus"
-			if command == 'readyToReceiveItem' then
-                local readyForItem = lib.safeToReceiveItem()
+            -- Expects message format: "requestId|isItemReceivable"
+            -- Returns message format: "requestComplete|requestId|readyStatus"
+			if command == 'isItemReceivable' then
                 local readyStatus = ""
-                if lib.safeToReceiveItem() then
+                if lib.isItemReceivable() then
                     readyStatus = "1"
                 else
                     readyStatus = "0"
                 end
-                connection:send(requestId .. '|' .. readyStatus)
+                connection:send('requestComplete|' .. requestId .. '|' .. readyStatus)
 			    return
 			end
 
             -- Expects message format: "requestId|getReceivedItemCount"
-            -- Returns message format: "requestId|receivedItemCount"
+            -- Returns message format: "requestComplete|requestId|receivedItemCount"
             if command == 'getReceivedItemCount' then
-                connection:send(requestId .. '|' .. lib.getReceivedItemCount())
+                connection:send('requestComplete|' .. requestId .. '|' .. lib.getReceivedItemCount())
                 return
             end
 
             -- Expects message format: "requestId|setNames|player1Slot|player1Name|player2Slot|player2Name|..."
-            -- Returns message format: "requestId"
+            -- Returns message format: "requestComplete|requestId"
             if command == 'setNames' then
                 print('Command: setNames\nRaw: ' .. msg)
-                connection:send(requestId)
+                connection:send('requestComplete|' .. requestId)
                 return
+            end
+
+            -- Expects message format: "requestId|getLocationChecks"
+            -- Returns message format: "requestComplete|requestId|location1Name|location1Checked|location2Name|..."
+            if command == 'getLocationChecks' then
+                local message = "requestComplete|requestId"
+                    for location_name, checked in pairs(lib.getLocationChecks()) do
+                        message = message .. "|" .. location_name .. "|"
+                        if checked then
+                            message = message .. "1"
+                        else
+                            message = message .. "0"
+                        end
+                    end
+                connection:send(message)
             end
 		end)()
 		coroutine.yield()
 	end
 end)
-
--- Sends pipe delimited location checks in format: "locationChecks|location1Name|location1Checked|..."
-local sendLocationChecks = function()
-    local message = "locationChecks"
-    for location_name, checked in pairs(lib.getLocationChecks()) do
-        message = message .. "|" .. location_name .. "|"
-        if checked then
-            message = message .. "1"
-        else
-            message = message .. "0"
-        end
-    end
-    connection:send(message)
-end
 
 -- Connect to the AP Client's socket server
 clientConnected = connectToAPClient()
@@ -148,11 +143,5 @@ while true do
 	if clientConnected then runMessageWatcher() end
 
 	-- Advance the emulator by one frame
-	emu.frameadvance()
-
-    -- If the client is connected, send location checks to the server
-	if clientConnected then sendLocationChecks() end
-
-    -- Advance the emulator by one frame
 	emu.frameadvance()
 end

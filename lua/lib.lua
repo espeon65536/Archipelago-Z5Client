@@ -17,7 +17,7 @@ local outgoing_player_addr  = coop_context + 18
 local save_context = 0x11A5D0
 local internal_count_addr = save_context + 0x90
 
-lib.safeToReceiveItem = function()
+lib.isItemReceivable = function()
     local shop_scenes = {[0x2C]=1, [0x2D]=1, [0x2E]=1, [0x2F]=1, [0x30]=1, [0x31]=1, [0x32]=1, [0x33]=1,
                          [0x42]=1, [0x4B]=1}
     local details
