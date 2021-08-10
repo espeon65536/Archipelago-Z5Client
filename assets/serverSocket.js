@@ -90,7 +90,6 @@ const connectToServer = (address) => {
           const connectionData = {
             cmd: 'Connect',
             game: 'Ocarina of Time',
-            name: 'Ocarina of Time Client',
             // name: btoa(new TextDecoder().decode(romName)), // Base64 encoded rom name
             uuid: getClientId(),
             tags: ['Z5 Client'],
@@ -232,7 +231,7 @@ const connectToServer = (address) => {
     if (!serverAddress) { return; }
 
     // Attempt to reconnect to the AP server
-    if (n64Device === null) { return; }
+    if (!n64Connected) { return; }
 
     setTimeout(() => {
       // Do not attempt to reconnect if a server connection exists already. This can happen if a user attempts
