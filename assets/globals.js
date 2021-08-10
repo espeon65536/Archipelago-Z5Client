@@ -9,15 +9,17 @@ const CLIENT_VERSION = {
 const SUPPORTED_ARCHIPELAGO_VERSION = {
   major: 0,
   minor: 1,
-  build: 3,
+  build: 5,
   class: 'Version',
 };
 
 // Archipelago server
 const DEFAULT_SERVER_PORT = 38281;
 let serverSocket = null;
-let lastServerAddress = null;
 let serverAuthError = false;
+
+// Local client connection
+let n64Connected = false;
 
 // Players in the current game, received from Connected server packet
 let playerSlot = null;

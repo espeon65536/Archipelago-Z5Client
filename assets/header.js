@@ -30,6 +30,15 @@ window.addEventListener('load', () => {
   document.getElementById('receive-items-toggle').addEventListener('click', (evt) => {
     receiveItems ? disableReceivingItems() : enableReceivingItems();
   });
+
+  // When the N64 connects or disconnects, update the client status
+  window.oot.deviceConnected((connected) => {
+    n64Connected = !!connected;
+    const statusDisplay = document.getElementById('n64-device-status');
+    statusDisplay.classList.add(connected ? 'connected' : 'disconnected');
+    statusDisplay.classList.remove(connected ? 'disconnected' : 'connected');
+    statusDisplay.innerText = connected ? 'Connected' : 'Disconnected';
+  });
 });
 
 const disableReceivingItems = () => {

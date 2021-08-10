@@ -19,17 +19,9 @@
 <body>
     <div id="main-content">
         <div id="header">
-            <table>
-                <tr>
-                    <td><label for="n64-device">n64 Device:</label></td>
-                    <td>
-                        <select id="n64-device" disabled>
-                            <option>Waiting for devices...</option>
-                        </select>
-                        &nbsp;
-                        <span id="n64-device-refresh">🔃</span>
-                    </td>
-                </tr>
+            <table id="n64-device-table">
+                <tr><td>N64 Device</td></tr>
+                <tr><td>Status: <span id="n64-device-status" class="disconnected">Disconnected</span></td></tr>
             </table>
             <table>
                 <tr>

@@ -28,7 +28,6 @@ window.addEventListener('load', () => {
     // If the input value is empty, do not attempt to reconnect
     if (!event.target.value) {
       if (serverSocket && serverSocket.readyState === WebSocket.OPEN) {
-        lastServerAddress = null;
         serverSocket.close();
         serverSocket = null;
       }
@@ -48,7 +47,7 @@ const connectToServer = (address) => {
   serverAuthError = false;
 
   // If there are no n64 devices available, do nothing
-  if (n64Device === null) { return; }
+  if (!n64Connected) { return; }
 
   // Determine the server address
   let serverAddress = address;
@@ -88,11 +87,11 @@ const connectToServer = (address) => {
           }
 
           // Authenticate with the server
-          const romName = await readFromAddress(ROMNAME_START, ROMNAME_SIZE);
           const connectionData = {
             cmd: 'Connect',
             game: 'Ocarina of Time',
-            name: btoa(new TextDecoder().decode(romName)), // Base64 encoded rom name
+            name: 'Ocarina of Time Client',
+            // name: btoa(new TextDecoder().decode(romName)), // Base64 encoded rom name
             uuid: getClientId(),
             tags: ['Z5 Client'],
             password: null, // TODO: Handle password protected lobbies
@@ -102,9 +101,6 @@ const connectToServer = (address) => {
           break;
 
         case 'Connected':
-          // Save the last server that was successfully connected to
-          lastServerAddress = address;
-
           // Reset reconnection info if necessary
           reconnectAttempts = 0;
           if (reconnectInterval) {

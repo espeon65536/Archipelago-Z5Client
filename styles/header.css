@@ -25,6 +25,10 @@
     color: red;
 }
 
+#n64-device-table{
+    margin-right: 1rem;
+}
+
 #n64-device-refresh{
     cursor: pointer;
 }
