@@ -1,13 +1,34 @@
-// FIFO queue of network commands
-const requestQueue = [];
+let currentResolve = null;
 
-// Function to generate a random 32 character string
-const idChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-const generateRequestId = () => {
-  let requestId = '';
-  for (let i=0; i<32; ++i){
-    requestId += idChars.charAt(Math.floor(Math.random()*idChars.length));
-  }
-  return requestId;
-};
+window.addEventListener('load', () => {
+  window.oot.requestComplete((...args) => {
+    console.info(...args);
+    currentResolve(...args);
+  });
+});
+
+const setNames = (namesObj) => new Promise((resolve) => {
+  currentResolve = resolve;
+  window.oot.setNames(namesObj);
+});
+
+const getRomName = () => new Promise((resolve) => {
+  currentResolve = resolve;
+  window.oot.getRomName();
+});
+
+const getReceivedItemCount = () => new Promise((resolve) => {
+  currentResolve = resolve;
+  window.oot.getReceivedItemCount();
+});
+
+const isItemReceivable = () => new Promise((resolve) => {
+  currentResolve = resolve;
+  window.oot.isItemReceivable();
+});
+
+const receiveItem = (itemId) => new Promise((resolve) => {
+  currentResolve = resolve;
+  window.oot.receiveItem(parseInt(itemId, 10));
+});
 

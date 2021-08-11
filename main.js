@@ -213,8 +213,7 @@ net.createServer((socket) => {
     const messageType = messageParts.splice(0,1)[0];
     switch (messageType) {
       case 'requestComplete':
-        const requestId = messageParts.splice(0,1)[0];
-        uiWindow.webContents.send('requestComplete', requestId, messageParts)
+        uiWindow.webContents.send('requestComplete', messageParts)
         break;
 
       default:
@@ -247,29 +246,29 @@ net.createServer((socket) => {
 }).listen(port, hostname);
 
 // Interprocess communication with the renderer process, used for communication with OoT LUA Script
-ipcMain.on('receiveItem', (event, requestId, itemOffset) => {
+ipcMain.on('receiveItem', (event, itemOffset) => {
   Object.values(socketClients).forEach((socket) => {
-    socket.write(socketMessage(`${requestId}|receiveItem|${itemOffset}`));
+    socket.write(socketMessage(`receiveItem|${itemOffset}`));
   });
 });
-ipcMain.on('isItemReceivable', (event, requestId) => {
+ipcMain.on('isItemReceivable', (event) => {
   Object.values(socketClients).forEach((socket) => {
-    socket.write(socketMessage(`${requestId}|isItemReceivable`));
+    socket.write(socketMessage('isItemReceivable'));
   });
 });
-ipcMain.on('getReceivedItemCount', (event, requestId) => {
+ipcMain.on('getReceivedItemCount', (event) => {
   Object.values(socketClients).forEach((socket) => {
-    socket.write(socketMessage(`${requestId}|getReceivedItemCount`));
+    socket.write(socketMessage('getReceivedItemCount'));
   });
 });
-ipcMain.on('getRomName', (event, requestId) => {
+ipcMain.on('getRomName', (event) => {
   Object.values(socketClients).forEach((socket) => {
-    socket.write(socketMessage(`${requestId}|getRomName`));
+    socket.write(socketMessage('getRomName'));
   });
 });
-ipcMain.on('setNames', (event, requestId, namesObj) => {
+ipcMain.on('setNames', (event, namesObj) => {
   Object.values(socketClients).forEach((socket) => {
-    let commandStr = `${requestId}|setNames`;
+    let commandStr = `setNames`;
     Object.keys(namesObj).forEach((key) => commandStr += `|${key}|${namesObj[key]}`);
     socket.write(socketMessage(commandStr));
   });

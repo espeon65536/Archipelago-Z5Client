@@ -65,24 +65,23 @@ local runMessageWatcher = coroutine.wrap(function()
 			if not msg then return end
 
 			-- Handle the message
-			-- Message structure: requestId|command|arg1|arg2|...
+			-- Message structure: command|arg1|arg2|...
 			-- Different commands have different expectations of arguments, described in comments where each
 			-- command is handled
 			local messageParts = stringSplit(msg, '|')
-			local requestId = messageParts[1]
-            local command = messageParts[2]
+            local command = messageParts[1]
 
-            -- Expects message format: "requestId|receiveItem|itemOffset"
-            -- Returns message format: "requestComplete|requestId"
+            -- Expects message format: "receiveItem|itemOffset"
+            -- Returns message format: "requestComplete"
 		    if command == 'receiveItem' then
-                local itemOffset = messageParts[3]
+                local itemOffset = messageParts[2]
 		        lib.receiveItem(lib.localPlayerNumber,tonumber(itemOffset))
-		        connection:send('requestComplete|' .. requestId)
+		        connection:send('requestComplete')
 			    return
 			end
 
-            -- Expects message format: "requestId|isItemReceivable"
-            -- Returns message format: "requestComplete|requestId|readyStatus"
+            -- Expects message format: "isItemReceivable"
+            -- Returns message format: "requestComplete|readyStatus"
 			if command == 'isItemReceivable' then
                 local readyStatus = ""
                 if lib.isItemReceivable() then
@@ -90,38 +89,40 @@ local runMessageWatcher = coroutine.wrap(function()
                 else
                     readyStatus = "0"
                 end
-                connection:send('requestComplete|' .. requestId .. '|' .. readyStatus)
+                connection:send('requestComplete|' .. readyStatus)
 			    return
 			end
 
-            -- Expects message format: "requestId|getReceivedItemCount"
-            -- Returns message format: "requestComplete|requestId|receivedItemCount"
+            -- Expects message format: "getReceivedItemCount"
+            -- Returns message format: "requestComplete|receivedItemCount"
             if command == 'getReceivedItemCount' then
-                connection:send('requestComplete|' .. requestId .. '|' .. lib.getReceivedItemCount())
+                connection:send('requestComplete|' .. lib.getReceivedItemCount())
                 return
             end
 
+            -- Expects message format: "getRomName"
+            -- Returns message format: "requestComplete|romName"
             if command == 'getRomName' then
-                connection:send('requestComplete|' .. requestId .. '|' .. lib.getRomName())
+                connection:send('requestComplete|' .. lib.getRomName())
                 return
             end
 
-            -- Expects message format: "requestId|setNames|player1Slot|player1Name|player2Slot|player2Name|..."
-            -- Returns message format: "requestComplete|requestId"
+            -- Expects message format: "setNames|player1Slot|player1Name|player2Slot|player2Name|..."
+            -- Returns message format: "requestComplete"
             if command == 'setNames' then
-                local index = 3
+                local index = 2
                 while index <= #(messageParts) do
                     lib.setPlayerName(messageParts[index],messageParts[index+1])
                     index = index + 2 -- Increment twice each loop
                 end
-                connection:send('requestComplete|' .. requestId)
+                connection:send('requestComplete')
                 return
             end
 
-            -- Expects message format: "requestId|getLocationChecks"
-            -- Returns message format: "requestComplete|requestId|location1Name|location1Checked|location2Name|..."
+            -- Expects message format: "getLocationChecks"
+            -- Returns message format: "requestComplete|location1Name|location1Checked|location2Name|..."
             if command == 'getLocationChecks' then
-                local message = "requestComplete|requestId"
+                local message = 'requestComplete'
                     for location_name, checked in pairs(lib.getLocationChecks()) do
                         message = message .. "|" .. location_name .. "|"
                         if checked then

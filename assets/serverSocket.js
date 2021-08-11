@@ -20,7 +20,7 @@ const CLIENT_STATUS = {
   CLIENT_GOAL: 30,
 };
 
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
   // Handle server address change
   document.getElementById('server-address').addEventListener('keydown', async (event) => {
     if (event.key !== 'Enter') { return; }
@@ -33,11 +33,11 @@ window.addEventListener('load', () => {
       }
     }
 
-    connectToServer(event.target.value);
+    await connectToServer(event.target.value);
   });
 });
 
-const connectToServer = (address) => {
+const connectToServer = async (address) => {
   if (serverSocket && serverSocket.readyState === WebSocket.OPEN) {
     serverSocket.close();
     serverSocket = null;
@@ -86,11 +86,13 @@ const connectToServer = (address) => {
             itemsById = JSON.parse(localStorage.getItem('itemMap'));
           }
 
+          const romName = await getRomName();
+
           // Authenticate with the server
           const connectionData = {
             cmd: 'Connect',
             game: 'Ocarina of Time',
-            // name: btoa(new TextDecoder().decode(romName)), // Base64 encoded rom name
+            name: romName[0],
             uuid: getClientId(),
             tags: ['Z5 Client'],
             password: null, // TODO: Handle password protected lobbies
