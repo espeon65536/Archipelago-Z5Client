@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld('oot', {
   receiveItem: (requestId, itemOffset) => ipcRenderer.send('receiveItem', requestId, itemOffset),
   isItemReceivable: (requestId) => ipcRenderer.send('isItemReceivable', requestId),
   getReceivedItemCount: (requestId) => ipcRenderer.send('getReceivedItemCount', requestId),
+  getRomName: (requestId) => ipcRenderer.send('getRomName', requestId),
   setNames: (requestId, namesObj) => ipcRenderer.send('setNames', requestId, namesObj),
 
   // Function listenable by renderer to allow IPCMain to report a completed request

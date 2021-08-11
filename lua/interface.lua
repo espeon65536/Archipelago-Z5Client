@@ -105,6 +105,11 @@ local runMessageWatcher = coroutine.wrap(function()
                 return
             end
 
+            if command == 'getRomName' then
+                connection:send('requestComplete|' .. requestId .. '|' .. lib.getRomName())
+                return
+            end
+
             -- Expects message format: "requestId|setNames|player1Slot|player1Name|player2Slot|player2Name|..."
             -- Returns message format: "requestComplete|requestId"
             if command == 'setNames' then

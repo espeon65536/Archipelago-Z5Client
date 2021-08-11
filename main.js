@@ -262,6 +262,11 @@ ipcMain.on('getReceivedItemCount', (event, requestId) => {
     socket.write(socketMessage(`${requestId}|getReceivedItemCount`));
   });
 });
+ipcMain.on('getRomName', (event, requestId) => {
+  Object.values(socketClients).forEach((socket) => {
+    socket.write(socketMessage(`${requestId}|getRomName`));
+  });
+});
 ipcMain.on('setNames', (event, requestId, namesObj) => {
   Object.values(socketClients).forEach((socket) => {
     let commandStr = `${requestId}|setNames`;
