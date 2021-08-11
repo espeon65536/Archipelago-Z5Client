@@ -69,17 +69,13 @@ local runMessageWatcher = coroutine.wrap(function()
 			-- Different commands have different expectations of arguments, described in comments where each
 			-- command is handled
 			local messageParts = stringSplit(msg, '|')
-			if not messageParts[0] or not messageParts[1] then
-			    print(msg)
-			    return
-            end
-			local requestId = messageParts[0]
-            local command = messageParts[1]
+			local requestId = messageParts[1]
+            local command = messageParts[2]
 
             -- Expects message format: "requestId|receiveItem|itemOffset"
             -- Returns message format: "requestComplete|requestId"
 		    if command == 'receiveItem' then
-                local itemOffset = messageParts[2]
+                local itemOffset = messageParts[3]
 		        lib.receiveItem(lib.localPlayerNumber,tonumber(itemOffset))
 		        connection:send('requestComplete|' .. requestId)
 			    return
