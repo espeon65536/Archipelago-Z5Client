@@ -76,14 +76,12 @@ const connectToServer = async (address) => {
           document.getElementById('points-per-check').innerText = command.location_check_points.toString();
 
           // Update the local cache of location and item maps if necessary
-          if (!localStorage.getItem('dataPackageVersion') || !localStorage.getItem('locationMap') ||
-            !localStorage.getItem('itemMap') ||
+          if (!localStorage.getItem('dataPackageVersion') || !localStorage.getItem('dataPackage') ||
             command.datapackage_version !== localStorage.getItem('dataPackageVersion')) {
-            updateLocationCache();
+            requestDataPackage();
           } else {
             // Load the location and item maps into memory
-            buildLocationData(JSON.parse(localStorage.getItem('locationMap')));
-            itemsById = JSON.parse(localStorage.getItem('itemMap'));
+            buildItemAndLocationData(JSON.parse(localStorage.getItem('dataPackage')));
           }
 
           const romName = await getRomName();
@@ -206,13 +204,9 @@ const connectToServer = async (address) => {
           // Save updated location and item maps into localStorage
           if (command.data.version !== 0) { // Unless this is a custom package, denoted by version zero
             localStorage.setItem('dataPackageVersion', command.data.version);
-            localStorage.setItem('locationMap', JSON.stringify(command.data.lookup_any_location_id_to_name));
-            localStorage.setItem('itemMap', JSON.stringify(command.data.lookup_any_item_id_to_name));
+            localStorage.setItem('dataPackage', JSON.stringify(command.data));
           }
-
-          buildLocationData(command.data.lookup_any_location_id_to_name);
-          itemsById = command.data.lookup_any_item_id_to_name;
-
+          buildItemAndLocationData(command.data);
           break;
 
         default:
@@ -289,7 +283,7 @@ const serverSync = () => {
   }
 };
 
-const updateLocationCache = () => {
+const requestDataPackage = () => {
   if (!serverSocket || serverSocket.readyState !== WebSocket.OPEN) { return; }
   serverSocket.send(JSON.stringify([{
     cmd: 'GetDataPackage',
@@ -304,14 +298,14 @@ const sendLocationChecks = (locationIds) => {
   }]));
 };
 
-/**
- * Build two global objects which are used to reference location data
- * @param locations An object of { locationId: locationName, ... }
- */
-const buildLocationData = (locations) => {
-  locationMap = locations;
-  const locationIds = Object.keys(locations);
-  const locationNames = Object.values(locations);
+const buildItemAndLocationData = (dataPackage) => {
+  Object.values(dataPackage.games).forEach((game) => {
+    Object.keys(game.item_name_to_id).forEach((item) => {
+      apItemsById[game.item_name_to_id[item]] = item;
+    });
 
-
+    Object.keys(game.location_name_to_id).forEach((location) => {
+      apLocationsById[game.location_name_to_id[location]] = location;
+    });
+  });
 };

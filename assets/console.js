@@ -130,7 +130,7 @@ const appendFormattedConsoleMessage = (messageParts) => {
           break;
         case 'location_id':
           span.style.color = '#5ea2c1';
-          span.innerText = locationMap[Number(part.text)];
+          span.innerText = locationsById[Number(part.text)];
           break;
         default:
           span.innerText = part.text;

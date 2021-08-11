@@ -18,7 +18,7 @@ const DEFAULT_SERVER_PORT = 38281;
 let serverSocket = null;
 let serverAuthError = false;
 
-// Local client connection
+// Local client connection state
 let n64Connected = false;
 
 // Players in the current game, received from Connected server packet
@@ -28,10 +28,8 @@ let players = [];
 let hintCost = null;
 
 // Location and item maps, populated from localStorage
-let itemsById = {};
-
-// Object matting locationId to locationName
-let locationMap = {};
+let apItemsById = {};
+let apLocationsById = {};
 
 // Data shared between main and renderer processes
 let sharedData = {};

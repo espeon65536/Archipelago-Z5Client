@@ -1,4 +1,4 @@
-const items = {
+const romItemsByName = {
   'Bombs (5)': 0x01,
   'Deku Nuts (5)': 0x02,
   'Bombchus (10)': 0x03,

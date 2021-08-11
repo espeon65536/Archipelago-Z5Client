@@ -29,6 +29,6 @@ const isItemReceivable = () => new Promise((resolve) => {
 
 const receiveItem = (itemId) => new Promise((resolve) => {
   currentResolve = resolve;
-  window.oot.receiveItem(parseInt(itemId, 10));
+  window.oot.receiveItem(romItemsByName[apItemsById[itemId]]);
 });
 
