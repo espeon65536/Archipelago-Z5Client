@@ -109,7 +109,11 @@ local runMessageWatcher = coroutine.wrap(function()
             -- Expects message format: "requestId|setNames|player1Slot|player1Name|player2Slot|player2Name|..."
             -- Returns message format: "requestComplete|requestId"
             if command == 'setNames' then
-                print('Command: setNames\nRaw: ' .. msg)
+                local index = 3
+                while index <= #(messageParts) do
+                    lib.setPlayerName(messageParts[index],messageParts[index+1])
+                    index = index + 2 -- Increment twice each loop
+                end
                 connection:send('requestComplete|' .. requestId)
                 return
             end
