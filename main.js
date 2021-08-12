@@ -1,8 +1,6 @@
 const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const fs = require('fs');
 const path = require('path');
-const lzma = require('lzma-native');
-const yaml = require('js-yaml');
 const md5 = require('md5');
 const childProcess = require('child_process');
 const net = require('net');
@@ -275,6 +273,6 @@ ipcMain.on('setNames', (event, namesObj) => {
 });
 ipcMain.on('getLocationChecks', (event) => {
   Object.values(socketClients).forEach((socket) => {
-    socket.write('getLocationChecks');
+    socket.write(socketMessage('getLocationChecks'));
   });
 });

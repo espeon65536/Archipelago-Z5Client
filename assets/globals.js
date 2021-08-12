@@ -30,6 +30,7 @@ let hintCost = null;
 // Location and item maps, populated from localStorage
 let apItemsById = {};
 let apLocationsById = {};
+let ootLocationsByName = {};
 
 // Data shared between main and renderer processes
 let sharedData = {};

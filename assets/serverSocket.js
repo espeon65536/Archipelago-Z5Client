@@ -127,6 +127,13 @@ const connectToServer = async (address) => {
           playerTeam = command.team;
           playerSlot = command.slot;
 
+          // Write player names to ROM
+          const romPlayerNames = {};
+          players.forEach((player) => {
+            romPlayerNames[player.slot] = player.alias;
+          });
+          await setNames(romPlayerNames);
+
           n64Interval = setInterval(async () => {
             // Do not run multiple intervals simultaneously
             if (!n64IntervalComplete) { return; }
@@ -135,21 +142,41 @@ const connectToServer = async (address) => {
             n64IntervalComplete = false;
 
             // Send items to OoT if there are unsent items waiting
-            const receivedItemCount = (await getReceivedItemCount())[0];
+            const receivedItemCount = (await getReceivedItemCount());
             if (receivedItemCount < itemsReceived.length) {
               // If link is currently able to receive an item, send it to him
               const itemReceivable = (await isItemReceivable())[0];
-              console.info(`itemReceivable: ${itemReceivable}`);
               if (parseInt(itemReceivable, 10)) {
-                console.info(`Sending item: ${apItemsById[itemsReceived[receivedItemCount]]}`);
-                await receiveItem(itemsReceived[receivedItemCount]);
+                await receiveItem(itemsReceived[receivedItemCount].item);
               }
             }
 
-            // TODO: Get location checks from OoT
-            console.info('Requesting location checks');
+            // Get location checks from OoT
             const romLocationsChecked = await getLocationChecks();
-            console.info(romLocationsChecked);
+
+            // Look for new location checks
+            let romLocationIndex = 0;
+            let newLocationChecks = [];
+            while (romLocationIndex < romLocationsChecked.length) {
+              // If the location has been checked
+              if (parseInt(romLocationsChecked[romLocationIndex+1], 10) === 1) {
+                // If this check is present in missing locations, remove it
+                if (missingLocations.indexOf(ootLocationsByName[romLocationsChecked[romLocationIndex]]) > -1) {
+                  missingLocations.splice(missingLocations.indexOf(ootLocationsByName[romLocationsChecked[romLocationIndex]]),1);
+                }
+
+                // If this check is not present in checked locations, note it as a new check
+                if (!checkedLocations.includes(ootLocationsByName[romLocationsChecked[romLocationIndex]])) {
+                  newLocationChecks.push(ootLocationsByName[romLocationsChecked[romLocationIndex]]);
+                }
+              }
+              romLocationIndex += 2;
+            }
+
+            // If there are new location checks, send them to the AP server
+            if (newLocationChecks.length > 0) {
+              sendLocationChecks(newLocationChecks);
+            }
 
             // Interval complete, allow a new run
             n64IntervalComplete = true;
@@ -241,6 +268,7 @@ const connectToServer = async (address) => {
     serverStatus.classList.remove('connected');
     serverStatus.innerText = 'Not Connected';
     serverStatus.classList.add('disconnected');
+    if (n64Interval) { clearInterval(n64Interval); }
 
     // If the user cleared the server address, do nothing
     const serverAddress = document.getElementById('server-address').value;
@@ -275,6 +303,7 @@ const connectToServer = async (address) => {
       appendConsoleMessage('Archipelago server connection lost. The connection closed unexpectedly. ' +
         'Please try to reconnect, or restart the client.');
       serverSocket.close();
+      if (n64Interval) { clearInterval(n64Interval); }
     }
   };
 };
@@ -328,4 +357,6 @@ const buildItemAndLocationData = (dataPackage) => {
       apLocationsById[game.location_name_to_id[location]] = location;
     });
   });
+
+  ootLocationsByName = dataPackage.games['Ocarina of Time'].location_name_to_id;
 };
