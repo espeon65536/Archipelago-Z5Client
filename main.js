@@ -273,3 +273,8 @@ ipcMain.on('setNames', (event, namesObj) => {
     socket.write(socketMessage(commandStr));
   });
 });
+ipcMain.on('getLocationChecks', (event) => {
+  Object.values(socketClients).forEach((socket) => {
+    socket.write('getLocationChecks');
+  });
+});

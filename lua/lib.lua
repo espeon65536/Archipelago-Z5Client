@@ -51,14 +51,9 @@ lib.getReceivedItemCount = function()
 end
 
 lib.receiveItem = function(senderId, itemId)
-    -- Increment the internal item counter
-    local internal_count = mainmemory.read_u16_be(internal_count_addr)
-    internal_count = internal_count + 1
-    mainmemory.write_u16_be(internal_count_addr, internal_count)
-
     -- Grant item to player
     mainmemory.write_u16_be(incoming_player_addr, senderId) -- player slot number
-    mainmemory.write_u16_be(incoming_item_addr, itemId) -- id fo the item to be sent
+    mainmemory.write_u16_be(incoming_item_addr, itemId) -- id of the item to be sent
 end
 
 lib.getRomName = function()

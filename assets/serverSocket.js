@@ -127,14 +127,31 @@ const connectToServer = async (address) => {
           playerTeam = command.team;
           playerSlot = command.slot;
 
-          // Create an array containing only shopIds
-          const shopIds = Object.values(SHOPS).map((shop) => shop.locationId);
-
           n64Interval = setInterval(async () => {
+            // Do not run multiple intervals simultaneously
+            if (!n64IntervalComplete) { return; }
+
+            // Interval has started
             n64IntervalComplete = false;
 
-            // TODO: Implement OoT Logic
+            // Send items to OoT if there are unsent items waiting
+            const receivedItemCount = (await getReceivedItemCount())[0];
+            if (receivedItemCount < itemsReceived.length) {
+              // If link is currently able to receive an item, send it to him
+              const itemReceivable = (await isItemReceivable())[0];
+              console.info(`itemReceivable: ${itemReceivable}`);
+              if (parseInt(itemReceivable, 10)) {
+                console.info(`Sending item: ${apItemsById[itemsReceived[receivedItemCount]]}`);
+                await receiveItem(itemsReceived[receivedItemCount]);
+              }
+            }
 
+            // TODO: Get location checks from OoT
+            console.info('Requesting location checks');
+            const romLocationsChecked = await getLocationChecks();
+            console.info(romLocationsChecked);
+
+            // Interval complete, allow a new run
             n64IntervalComplete = true;
           });
           break;
@@ -153,6 +170,9 @@ const connectToServer = async (address) => {
         case 'ReceivedItems':
           // Save received items in the array of items to be sent to the n64, if they have not been sent already
           command.items.forEach((item) => {
+            // Items from locations with id 0 or lower are special cases, and should always be allowed
+            if (item.location <= 0) { return itemsReceived.push(item); }
+
             if (itemsReceived.find((ir) =>
               ir.item === item.item && ir.location === item.location && ir.player === item.player
             )) { return; }
