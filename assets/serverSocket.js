@@ -142,7 +142,7 @@ const connectToServer = async (address) => {
             n64IntervalComplete = false;
 
             // Send items to OoT if there are unsent items waiting
-            const receivedItemCount = (await getReceivedItemCount());
+            const receivedItemCount = (await getReceivedItemCount())[0];
             if (receivedItemCount < itemsReceived.length) {
               // If link is currently able to receive an item, send it to him
               const itemReceivable = (await isItemReceivable())[0];
@@ -161,7 +161,7 @@ const connectToServer = async (address) => {
               // If the location has been checked
               if (parseInt(romLocationsChecked[romLocationIndex+1], 10) === 1) {
                 // If this check is present in missing locations, remove it
-                if (missingLocations.indexOf(ootLocationsByName[romLocationsChecked[romLocationIndex]]) > -1) {
+                if (missingLocations.includes(ootLocationsByName[romLocationsChecked[romLocationIndex]])) {
                   missingLocations.splice(missingLocations.indexOf(ootLocationsByName[romLocationsChecked[romLocationIndex]]),1);
                 }
 
