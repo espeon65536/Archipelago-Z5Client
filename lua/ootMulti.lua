@@ -36,20 +36,7 @@ local on_the_ground_check = function(scene_offset, bit_to_check)
 end
 
 -- NOTE: Scrubs are stored in the "unused" block of scene memory
-local scrub_check = function(scene_offset, bit_to_check, normal_scrub)
-    -- Three specific scrubs need to be checked in two locations: info table and scrub-sanity.
-    -- These three scrubs will always contain a multiworld item, but all other scrubs will only
-    -- contain a multiworld item if scrub-sanity is turned on:
-    -- LW Deku Scrub Near Bridge
-    -- LW Deku Scrub Grotto Front
-    -- HF Deku Scrub Grotto
-    if normal_scrub then
-        -- Perform the info table check and return "1" if the result of the check is "1", otherwise
-        -- fallback to the scrub shuffle check
-        -- TODO: Perform info_table_check
-    end
-
-    -- The rest of the scrubs only need to be checked against the scrub-sanity locations
+local scrub_sanity_check = function(scene_offset, bit_to_check)
     return scene_check(scene_offset, bit_to_check, 0x10)
 end
 
@@ -174,11 +161,22 @@ local read_lost_woods_checks = function()
     checks["Deku Theater Skull Mask"] = item_get_info_check(0x2, 0x6)
     checks["Deku Theater Mask of Truth"] = item_get_info_check(0x2, 0x7)
     checks["LW Skull Kid"] = item_get_info_check(0x3, 0x6)
-    checks["LW Deku Scrub Near Bridge"] = scrub_check(0x5B, 0xA, true)
-    checks["LW Deku Scrub Near Deku Theater Left"] = scrub_check(0x5B, 0x1)
-    checks["LW Deku Scrub Near Deku Theater Right"] = scrub_check(0x5B, 0x2)
-    checks["LW Deku Scrub Grotto Front"] = scrub_check(0x1F, 0xB, true)
-    checks["LW Deku Scrub Grotto Rear"] = scrub_check(0x1F, 0x4)
+
+    -- This is the first of three deku scrubs which are always included in the item pool, not just in scrub-sanity
+    checks["LW Deku Scrub Near Bridge"] = info_table_check(0x33, 0x2)
+    if not checks["LW Deku Scrub Near Bridge"] then
+        checks["LW Deku Scrub Near Bridge"] = scrub_sanity_check(0x5B, 0xA)
+    end
+
+    -- This is the second of three deku scrubs which are always included in the item pool, not just in scrub-sanity
+    checks["LW Deku Scrub Grotto Front"] = info_table_check(0x33, 0x3)
+    if not checks["LW Deku Scrub Grotto Front"] then
+        checks["LW Deku Scrub Grotto Front"] = scrub_sanity_check(0x1F, 0xB)
+    end
+
+    checks["LW Deku Scrub Near Deku Theater Left"] = scrub_sanity_check(0x5B, 0x1)
+    checks["LW Deku Scrub Near Deku Theater Right"] = scrub_sanity_check(0x5B, 0x2)
+    checks["LW Deku Scrub Grotto Rear"] = scrub_sanity_check(0x1F, 0x4)
 
     checks["LW GS Bean Patch Near Bridge"] = skulltula_check(0x0D, 0x0)
     checks["LW GS Bean Patch Near Theater"] = skulltula_check(0x0D, 0x1)
@@ -189,8 +187,8 @@ end
 local read_sacred_forest_meadow_checks = function()
     local checks = {}
     checks["SFM Wolfos Grotto Chest"] = chest_check(0x3E, 0x11)
-    checks["SFM Deku Scrub Grotto Front"] = scrub_check(0x18, 0x8)
-    checks["SFM Deku Scrub Grotto Rear"] = scrub_check(0x18, 0x9)
+    checks["SFM Deku Scrub Grotto Front"] = scrub_sanity_check(0x18, 0x8)
+    checks["SFM Deku Scrub Grotto Rear"] = scrub_sanity_check(0x18, 0x9)
     checks["SFM GS"] = skulltula_check(0x0D, 0x3)
     return checks
 end
@@ -246,8 +244,13 @@ local read_hyrule_field_checks = function()
     checks["HF Tektite Grotto Freestanding PoH"] = on_the_ground_check(0x3E, 0x01)
     checks["HF Southeast Grotto Chest"] = chest_check(0x3E, 0x02)
     checks["HF Open Grotto Chest"] = chest_check(0x3E, 0x03)
-    checks["HF Deku Scrub Grotto"] = scrub_check(0x10, 0x3, true)
     checks["HF Cow Grotto Cow"] = cow_check(0x3E, 0x19)
+
+    -- This is the third of three deku scrubs which are always included in the item pool, not just in scrub-sanity
+    checks["HF Deku Scrub Grotto"] = item_get_info_check(0x0, 0x3)
+    if not checks["HF Deku Scrub Grotto"] then
+        checks["HF Deku Scrub Grotto"] = scrub_sanity_check(0x10, 0x3)
+    end
 
     checks["HF GS Cow Grotto"] = skulltula_check(0x0A, 0x0)
     checks["HF GS Near Kak Grotto"] = skulltula_check(0x0A, 0x1)
@@ -263,9 +266,9 @@ local read_lon_lon_ranch_checks = function()
 
     -- checks["Lon Lon Ranch - Epona"] = event_check(0x1, 0x8)
 
-    checks["LLR Deku Scrub Grotto Left"] = scrub_check(0x26, 0x1)
-    checks["LLR Deku Scrub Grotto Center"] = scrub_check(0x26, 0x4)
-    checks["LLR Deku Scrub Grotto Right"] = scrub_check(0x26, 0x6)
+    checks["LLR Deku Scrub Grotto Left"] = scrub_sanity_check(0x26, 0x1)
+    checks["LLR Deku Scrub Grotto Center"] = scrub_sanity_check(0x26, 0x4)
+    checks["LLR Deku Scrub Grotto Right"] = scrub_sanity_check(0x26, 0x6)
 
     checks["LLR Stables Left Cow"] = cow_check(0x36, 0x18)
     checks["LLR Stables Right Cow"] = cow_check(0x36, 0x19)
@@ -449,9 +452,9 @@ local read_goron_city_checks = function()
     checks["GC Maze Left Chest"] = chest_check(0x62, 0x00)
     checks["GC Maze Right Chest"] = chest_check(0x62, 0x01)
     checks["GC Maze Center Chest"] = chest_check(0x62, 0x02)
-    checks["GC Deku Scrub Grotto Left"] = scrub_check(0x25, 0x1)
-    checks["GC Deku Scrub Grotto Center"] = scrub_check(0x25, 0x4)
-    checks["GC Deku Scrub Grotto Right"] = scrub_check(0x25, 0x6)
+    checks["GC Deku Scrub Grotto Left"] = scrub_sanity_check(0x25, 0x1)
+    checks["GC Deku Scrub Grotto Center"] = scrub_sanity_check(0x25, 0x4)
+    checks["GC Deku Scrub Grotto Right"] = scrub_sanity_check(0x25, 0x6)
     checks["GC GS Center Platform"] = skulltula_check(0x0F, 0x5)
     checks["GC GS Boulder Maze"] = skulltula_check(0x0F, 0x6)
 
@@ -469,10 +472,10 @@ local read_death_mountain_crater_checks = function()
     checks["DMC Upper Grotto Chest"] = chest_check(0x3E, 0x1A)
     checks["DMC Great Fairy Reward"] = great_fairy_magic_check(0x3B, 0x10)
 
-    checks["DMC Deku Scrub"] = scrub_check(0x61, 0x6)
-    checks["DMC Deku Scrub Grotto Left"] = scrub_check(0x23, 0x1)
-    checks["DMC Deku Scrub Grotto Center"] = scrub_check(0x23, 0x4)
-    checks["DMC Deku Scrub Grotto Right"] = scrub_check(0x23, 0x6)
+    checks["DMC Deku Scrub"] = scrub_sanity_check(0x61, 0x6)
+    checks["DMC Deku Scrub Grotto Left"] = scrub_sanity_check(0x23, 0x1)
+    checks["DMC Deku Scrub Grotto Center"] = scrub_sanity_check(0x23, 0x4)
+    checks["DMC Deku Scrub Grotto Right"] = scrub_sanity_check(0x23, 0x6)
 
     checks["DMC GS Crate"] = skulltula_check(0x0F, 0x7)
     checks["DMC GS Bean Patch"] = skulltula_check(0x0F, 0x0)
@@ -488,10 +491,10 @@ local read_dodongos_cavern_checks = function()
     checks["Dodongos Cavern End of Bridge Chest"] = chest_check(0x01, 0xA)
     checks["Dodongos Cavern Boss Room Chest"] = chest_check(0x12, 0x0)
 
-    checks["Dodongos Cavern Deku Scrub Lobby"] = scrub_check(0x1, 0x5)
-    checks["Dodongos Cavern Deku Scrub Side Room Near Dodongos"] = scrub_check(0x1, 0x2)
-    checks["Dodongos Cavern Deku Scrub Near Bomb Bag Left"] = scrub_check(0x1, 0x1)
-    checks["Dodongos Cavern Deku Scrub Near Bomb Bag Right"] = scrub_check(0x1, 0x4)
+    checks["Dodongos Cavern Deku Scrub Lobby"] = scrub_sanity_check(0x1, 0x5)
+    checks["Dodongos Cavern Deku Scrub Side Room Near Dodongos"] = scrub_sanity_check(0x1, 0x2)
+    checks["Dodongos Cavern Deku Scrub Near Bomb Bag Left"] = scrub_sanity_check(0x1, 0x1)
+    checks["Dodongos Cavern Deku Scrub Near Bomb Bag Right"] = scrub_sanity_check(0x1, 0x4)
 
     checks["Dodongos Cavern GS Side Room Near Lower Lizalfos"] = skulltula_check(0x01, 0x4)
     checks["Dodongos Cavern GS Scarecrow"] = skulltula_check(0x01, 0x1)
@@ -538,8 +541,8 @@ local read_zoras_river_checks = function()
     checks["ZR Frogs Ocarina Game"] = event_check(0xD, 0x0)
     checks["ZR Near Open Grotto Freestanding PoH"] = on_the_ground_check(0x54, 0x04)
     checks["ZR Near Domain Freestanding PoH"] = on_the_ground_check(0x54, 0x0B)
-    checks["ZR Deku Scrub Grotto Front"] = scrub_check(0x15, 0x8)
-    checks["ZR Deku Scrub Grotto Rear"] = scrub_check(0x15, 0x9)
+    checks["ZR Deku Scrub Grotto Front"] = scrub_sanity_check(0x15, 0x8)
+    checks["ZR Deku Scrub Grotto Rear"] = scrub_sanity_check(0x15, 0x9)
 
     checks["ZR GS Tree"] = skulltula_check(0x11, 0x1)
     --NOTE: There is no GS in the soft soil. It's the only one that doesn't have one.
@@ -579,7 +582,7 @@ local read_jabu_checks = function()
     checks["Jabu Jabus Belly Boomerang Chest"] = chest_check(0x02, 0x01)
     checks["Jabu Jabus Belly Map Chest"] = chest_check(0x02, 0x02)
     checks["Jabu Jabus Belly Compass Chest"] = chest_check(0x02, 0x04)
-    checks["Jabu Jabus Belly Deku Scrub"] = scrub_check(0x02, 0x1)
+    checks["Jabu Jabus Belly Deku Scrub"] = scrub_sanity_check(0x02, 0x1)
     checks["Jabu Jabus Belly GS Water Switch Room"] = skulltula_check(0x02, 0x3)
     checks["Jabu Jabus Belly GS Lobby Basement Lower"] = skulltula_check(0x02, 0x0)
     checks["Jabu Jabus Belly GS Lobby Basement Upper"] = skulltula_check(0x02, 0x1)
@@ -611,9 +614,9 @@ local read_lake_hylia_checks = function()
     checks["LH Freestanding PoH"] = on_the_ground_check(0x57, 0x1E)
     --It's not actually a chest, but it is marked in the chest section
     checks["LH Sun"] = chest_check(0x57, 0x0)
-    checks["LH Deku Scrub Grotto Left"] = scrub_check(0x19, 0x1)
-    checks["LH Deku Scrub Grotto Center"] = scrub_check(0x19, 0x4)
-    checks["LH Deku Scrub Grotto Right"] = scrub_check(0x19, 0x6)
+    checks["LH Deku Scrub Grotto Left"] = scrub_sanity_check(0x19, 0x1)
+    checks["LH Deku Scrub Grotto Center"] = scrub_sanity_check(0x19, 0x4)
+    checks["LH Deku Scrub Grotto Right"] = scrub_sanity_check(0x19, 0x6)
 
     checks["LH GS Lab Wall"] = skulltula_check(0x12, 0x2)
     checks["LH GS Bean Patch"] = skulltula_check(0x12, 0x0)
@@ -651,8 +654,8 @@ local read_gerudo_valley_checks = function()
     checks["GV Crate Freestanding PoH"] = on_the_ground_check(0x5A, 0x2)
     checks["GV Waterfall Freestanding PoH"] = on_the_ground_check(0x5A, 0x1)
     checks["GV Chest"] = chest_check(0x5A, 0x00)
-    checks["GV Deku Scrub Grotto Front"] = scrub_check(0x1A, 0x8)
-    checks["GV Deku Scrub Grotto Rear"] = scrub_check(0x1A, 0x9)
+    checks["GV Deku Scrub Grotto Front"] = scrub_sanity_check(0x1A, 0x8)
+    checks["GV Deku Scrub Grotto Rear"] = scrub_sanity_check(0x1A, 0x9)
     checks["GV Cow"] = cow_check(0x5A, 0x18)
 
     checks["GV GS Small Bridge"] = skulltula_check(0x13, 0x1)
@@ -720,8 +723,8 @@ local read_desert_colossus_checks = function()
     local checks = {}
     checks["Colossus Great Fairy Reward"] = item_get_info_check(0x2, 0x2)
     checks["Colossus Freestanding PoH"] = on_the_ground_check(0x5C, 0xD)
-    checks["Colossus Deku Scrub Grotto Front"] = scrub_check(0x27, 0x8)
-    checks["Colossus Deku Scrub Grotto Rear"] = scrub_check(0x27, 0x9)
+    checks["Colossus Deku Scrub Grotto Front"] = scrub_sanity_check(0x27, 0x8)
+    checks["Colossus Deku Scrub Grotto Rear"] = scrub_sanity_check(0x27, 0x9)
 
     checks["Colossus GS Bean Patch"] = skulltula_check(0x15, 0x0)
     checks["Colossus GS Tree"] = skulltula_check(0x15, 0x3)
@@ -781,10 +784,10 @@ local read_ganons_castle_checks = function()
     checks["Ganons Castle Spirit Trial Crystal Switch Chest"] = chest_check(0x0D, 0x12)
     checks["Ganons Castle Spirit Trial Invisible Chest"] = chest_check(0x0D, 0x14)
 
-    checks["Ganons Castle Deku Scrub Left"] = scrub_check(0xD, 0x8)
-    checks["Ganons Castle Deku Scrub Center-Left"] = scrub_check(0xD, 0x6)
-    checks["Ganons Castle Deku Scrub Center-Right"] = scrub_check(0xD, 0x4)
-    checks["Ganons Castle Deku Scrub Right"] = scrub_check(0xD, 0x9)
+    checks["Ganons Castle Deku Scrub Left"] = scrub_sanity_check(0xD, 0x8)
+    checks["Ganons Castle Deku Scrub Center-Left"] = scrub_sanity_check(0xD, 0x6)
+    checks["Ganons Castle Deku Scrub Center-Right"] = scrub_sanity_check(0xD, 0x4)
+    checks["Ganons Castle Deku Scrub Right"] = scrub_sanity_check(0xD, 0x9)
 
     checks["Ganons Tower Boss Key Chest"] = chest_check(0x0A, 0x0B)
     return checks
