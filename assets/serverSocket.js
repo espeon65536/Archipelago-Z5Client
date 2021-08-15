@@ -84,7 +84,11 @@ const connectToServer = async (address) => {
             buildItemAndLocationData(JSON.parse(localStorage.getItem('dataPackage')));
           }
 
-          const romName = await getRomName();
+          // Get the rom name
+          let romName = null;
+          while(romName === null) {
+            romName = await getRomName();
+          }
 
           // Authenticate with the server
           const connectionData = {
@@ -142,10 +146,18 @@ const connectToServer = async (address) => {
             n64IntervalComplete = false;
 
             // Send items to OoT if there are unsent items waiting
-            const receivedItemCount = (await getReceivedItemCount())[0];
+            let receivedItemCount = null;
+            while (receivedItemCount === null) {
+              receivedItemCount = await getReceivedItemCount();
+            }
+            receivedItemCount = receivedItemCount[0];
             if (receivedItemCount < itemsReceived.length) {
               // If link is currently able to receive an item, send it to him
-              const itemReceivable = (await isItemReceivable())[0];
+              let itemReceivable = null;
+              while (itemReceivable === null) {
+                itemReceivable = await isItemReceivable();
+              }
+              itemReceivable = itemReceivable[0];
               if (parseInt(itemReceivable, 10)) {
                 await receiveItem(itemsReceived[receivedItemCount].item);
               }
@@ -153,29 +165,30 @@ const connectToServer = async (address) => {
 
             // Get location checks from OoT
             const romLocationsChecked = await getLocationChecks();
+            if (romLocationsChecked !== null) {
+              // Look for new location checks
+              let romLocationIndex = 0;
+              let newLocationChecks = [];
+              while (romLocationIndex < romLocationsChecked.length) {
+                // If the location has been checked
+                if (parseInt(romLocationsChecked[romLocationIndex+1], 10) === 1) {
+                  // If this check is present in missing locations, remove it
+                  if (missingLocations.includes(ootLocationsByName[romLocationsChecked[romLocationIndex]])) {
+                    missingLocations.splice(missingLocations.indexOf(ootLocationsByName[romLocationsChecked[romLocationIndex]]),1);
+                  }
 
-            // Look for new location checks
-            let romLocationIndex = 0;
-            let newLocationChecks = [];
-            while (romLocationIndex < romLocationsChecked.length) {
-              // If the location has been checked
-              if (parseInt(romLocationsChecked[romLocationIndex+1], 10) === 1) {
-                // If this check is present in missing locations, remove it
-                if (missingLocations.includes(ootLocationsByName[romLocationsChecked[romLocationIndex]])) {
-                  missingLocations.splice(missingLocations.indexOf(ootLocationsByName[romLocationsChecked[romLocationIndex]]),1);
+                  // If this check is not present in checked locations, note it as a new check
+                  if (!checkedLocations.includes(ootLocationsByName[romLocationsChecked[romLocationIndex]])) {
+                    newLocationChecks.push(ootLocationsByName[romLocationsChecked[romLocationIndex]]);
+                  }
                 }
-
-                // If this check is not present in checked locations, note it as a new check
-                if (!checkedLocations.includes(ootLocationsByName[romLocationsChecked[romLocationIndex]])) {
-                  newLocationChecks.push(ootLocationsByName[romLocationsChecked[romLocationIndex]]);
-                }
+                romLocationIndex += 2;
               }
-              romLocationIndex += 2;
-            }
 
-            // If there are new location checks, send them to the AP server
-            if (newLocationChecks.length > 0) {
-              sendLocationChecks(newLocationChecks);
+              // If there are new location checks, send them to the AP server
+              if (newLocationChecks.length > 0) {
+                sendLocationChecks(newLocationChecks);
+              }
             }
 
             // TODO: DELETE THIS LINE

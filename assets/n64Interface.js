@@ -1,31 +1,40 @@
 let currentResolve = null;
+let currentTimeout = null;
 
 window.addEventListener('load', () => {
   window.oot.requestComplete((...args) => currentResolve(...args));
 });
 
-const getLocationChecks = () => new Promise((resolve) => {
+const setResolve = (resolve) => {
   currentResolve = resolve;
+  if(currentTimeout) { clearTimeout(currentTimeout); }
+  currentTimeout = setTimeout(() => {
+    if (currentResolve) { currentResolve(null); }
+  }, 3000);
+};
+
+const getLocationChecks = () => new Promise((resolve) => {
+  setResolve(resolve);
   window.oot.getLocationChecks();
 });
 
 const setNames = (namesObj) => new Promise((resolve) => {
-  currentResolve = resolve;
+  setResolve(resolve);
   window.oot.setNames(namesObj);
 });
 
 const getRomName = () => new Promise((resolve) => {
-  currentResolve = resolve;
+  setResolve(resolve);
   window.oot.getRomName();
 });
 
 const getReceivedItemCount = () => new Promise((resolve) => {
-  currentResolve = resolve;
+  setResolve(resolve);
   window.oot.getReceivedItemCount();
 });
 
 const isItemReceivable = () => new Promise((resolve) => {
-  currentResolve = resolve;
+  setResolve(resolve);
   window.oot.isItemReceivable();
 });
 
@@ -40,7 +49,7 @@ const receiveItem = (itemId) => new Promise((resolve) => {
     return window.logging.writeToLog(`OoT has no such item. (itemId: ${apItemsById[itemId]})`);
   }
 
-  currentResolve = resolve;
+  setResolve(resolve);
   window.oot.receiveItem(romItemsByName[apItemsById[itemId]]);
 });
 
