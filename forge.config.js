@@ -14,7 +14,7 @@ module.exports = {
         copyright: `${new Date().getFullYear()} Chris Wilson`,
         description: "The Archipelago client for The Legend of Zelda: Ocarina of Time",
         iconUrl: path.join(__dirname, 'icon.ico'),
-        setupExe: "Z5Client-ZSetup.exe",
+        setupExe: "Z5Client-Setup.exe",
         setupIcon: path.join(__dirname, 'icon.ico'),
         name: "Archipelago-z5Client"
       }
