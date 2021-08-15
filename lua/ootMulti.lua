@@ -1,6 +1,6 @@
------------------------------------------------
--- scanner.lua
------------------------------------------------
+--------------------------------------------------
+-- Heavily modified form of RiptideSage's tracker
+--------------------------------------------------
 local scanner = {}
 
 -- USER TOGGLES
@@ -673,6 +673,7 @@ local read_gerudo_fortress_checks = function()
     checks["GF South F2 Carpenter"] = on_the_ground_check(0xC, 0xF)
     checks["GF Gerudo Membership Card"] = membership_card_check(0xC, 0x2)
     checks["GF Chest"] = chest_check(0x5D, 0x0)
+    -- These checks are not currently used by the Archipelago Randomizer
     -- checks["Gerudo Fortress - Free North F1 Carpenter"] = event_check(0x9, 0x0)
     -- checks["Gerudo Fortress - Free North F2 Carpenter"] = event_check(0x9, 0x3)
     -- checks["Gerudo Fortress - Free South F1 Carpenter"] = event_check(0x9, 0x1)
@@ -875,7 +876,7 @@ end
 
 
 -------------------------------------------------------------
--- ootController.lua
+-- More or less copied from co-op script by Amazing Ampharos
 -------------------------------------------------------------
 local old_global_metatable = getmetatable(_G)
 setmetatable(_G, {
@@ -1184,10 +1185,7 @@ local function Address(layout)
 end
 
 
------------------------------------------------------------------------------------------
 -- OOT STRUCTURES
------------------------------------------------------------------------------------------
-
 -- ToDo: expand this
 local scene_names = {
     deku_tree = 0x00,
@@ -1843,117 +1841,12 @@ oot.is_loaded_game_mode = is_loaded_game_mode
 oot.freeze_death = freeze_death
 oot.state_fairy_queued = state_fairy_queued
 
--- give the good stuff
-oot.deck_me_out = function()
-    oot.sav.max_health = 0x140
-    oot.sav.cur_health = 0x140
-    oot.sav.magic_meter_level = 0x2
-    oot.sav.cur_magic = 0x60
-    oot.sav.magic_meter_size = 0x60
-    oot.sav.have_magic = true
-    oot.sav.have_double_magic = true
-    oot.sav.biggoron_sword_durable = true
-    oot.sav.double_defense = true
-    oot.sav.rupees = 500
-    oot.sav.double_defense_hearts = 0x140
-    oot.sav.beans_purchased = 0
-
-    oot.sav.magic_meter_level = 0x2
-    oot.sav.magic_meter_level = 0x2
-    oot.sav.magic_meter_level = 0x2
-    oot.sav.magic_meter_level = 0x2
-    oot.sav.magic_meter_level = 0x2
-    oot.sav.magic_meter_level = 0x2
-    oot.sav.magic_meter_level = 0x2
-    oot.sav.magic_meter_level = 0x2
-    oot.sav.magic_meter_level = 0x2
-    oot.sav.magic_meter_level = 0x2
-    oot.sav.magic_meter_level = 0x2
-
-    for dungeon = 0x00, 0x0D do
-        oot.sav.dungeon_items[dungeon].map = true
-        oot.sav.dungeon_items[dungeon].compass = true
-        oot.sav.dungeon_items[dungeon].boss_key = true
-        oot.sav.small_keys[dungeon] = 9
-    end
-
-    oot.sav.inventory.deku_sticks = "Deku Sticks"
-    oot.sav.inventory.deku_nuts = "Deku Nuts"
-    oot.sav.inventory.bombs = "Bombs"
-    oot.sav.inventory.bow = "Bow"
-    oot.sav.inventory.fire_arrow = "Fire Arrow"
-    oot.sav.inventory.dins_fire = "Dins Fire"
-    oot.sav.inventory.slingshot = "Slingshot"
-    oot.sav.inventory.ocarina = "Ocarina of Time"
-    oot.sav.inventory.bombchus = "Bombchus"
-    oot.sav.inventory.hookshot = "Longshot"
-    oot.sav.inventory.ice_arrow = "Ice Arrow"
-    oot.sav.inventory.farores_wind = "Farores Wind"
-    oot.sav.inventory.boomerang = "Boomerang"
-    oot.sav.inventory.lens_of_truth = "Lens of Truth"
-    oot.sav.inventory.magic_beans = "Magic Beans"
-    oot.sav.inventory.megaton_hammer = "Megaton Hammer"
-    oot.sav.inventory.light_arrow = "Light Arrow"
-    oot.sav.inventory.nayrus_love = "Nayrus Love"
-    oot.sav.inventory.bottle1 = "Bug"
-    oot.sav.inventory.bottle2 = "Fish"
-    oot.sav.inventory.bottle3 = "Blue Fire"
-    oot.sav.inventory.bottle4 = "Rutos Letter"
-    oot.sav.inventory.adult_trade = "Sold Out"
-    oot.sav.inventory.child_trade = "Chicken"
-
-    oot.sav.ammo.deku_sticks = 30
-    oot.sav.ammo.deku_nuts = 40
-    oot.sav.ammo.bombs = 40
-    oot.sav.ammo.bow = 50
-    oot.sav.ammo.slingshot = 50
-    oot.sav.ammo.bombchus = 50
-    oot.sav.ammo.magic_beans = 10
-
-    oot.sav.equipment.kokiri_tunic = true
-    oot.sav.equipment.goron_tunic = true
-    oot.sav.equipment.zora_tunic = true
-    oot.sav.equipment.kokiri_boots = true
-    oot.sav.equipment.iron_boots = true
-    oot.sav.equipment.hover_boots = true
-    oot.sav.equipment.kokiri_sword = true
-    oot.sav.equipment.master_sword = true
-    oot.sav.equipment.biggoron_sword = true
-    oot.sav.equipment.broken_sword_icon = true
-    oot.sav.equipment.kokiri_shield = true
-    oot.sav.equipment.hylian_shield = true
-    oot.sav.equipment.mirror_shield = true
-
-    oot.sav.equipment.stick_capacity = "30 Sticks"
-    oot.sav.equipment.nut_capacity = "40 Nuts"
-    oot.sav.equipment.scale = "Golden Scale"
-    oot.sav.equipment.wallet = "Giant's Wallet"
-    oot.sav.equipment.bullet_bag = "Biggest Bullet Seed Bag"
-    oot.sav.equipment.quiver = "Biggest Quiver"
-    oot.sav.equipment.bomb_bag = "Biggest Bomb Bag"
-    oot.sav.equipment.strength = "Golden Gauntlets"
-
-    oot.sav.quest_status.minuet_of_forest = true
-    oot.sav.quest_status.bolero_of_fire = true
-    oot.sav.quest_status.seranade_of_water = true
-    oot.sav.quest_status.requiem_of_spirit = true
-    oot.sav.quest_status.nocturne_of_shadow = true
-    oot.sav.quest_status.prelude_of_light = true
-    oot.sav.quest_status.zeldas_lullaby = true
-    oot.sav.quest_status.eponas_song = true
-    oot.sav.quest_status.sarias_song = true
-    oot.sav.quest_status.suns_song = true
-    oot.sav.quest_status.song_of_time = true
-    oot.sav.quest_status.song_of_storms = true
-
-end
-
 setmetatable(_G, old_global_metatable)
 
 
--------------------------------------------------------------
--- lib.lua
--------------------------------------------------------------
+-------------------------------------------------------
+-- Library of helper functions used by the socket loop
+-------------------------------------------------------
 lib = {}
 
 local rando_context = mainmemory.read_u32_be(0x1C6E90 + 0x15D4) - 0x80000000
@@ -2056,9 +1949,9 @@ lib.getLocationChecks = scanner.check_all_locations
 lib.localPlayerNumber = mainmemory.read_u8(player_id_addr)
 
 
----------------------------------------------------------------------------
--- interface.lua
----------------------------------------------------------------------------
+------------------------------------------------------------------------------
+-- Main script execution begins here, and controls the socket connection loop
+------------------------------------------------------------------------------
 console.log('Initializing OoT interface')
 local socket = require("socket.core")
 local connection
