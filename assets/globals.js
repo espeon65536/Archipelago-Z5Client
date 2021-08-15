@@ -9,7 +9,7 @@ const CLIENT_VERSION = {
 const SUPPORTED_ARCHIPELAGO_VERSION = {
   major: 0,
   minor: 1,
-  build: 5,
+  build: 6,
   class: 'Version',
 };
 
