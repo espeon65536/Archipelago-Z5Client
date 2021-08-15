@@ -22,7 +22,7 @@ local inf_table_offset = save_context_offset + 0xEF8 -- 0x11B4C8
 -- https://wiki.cloudmodding.com/oot/Scene_Table/NTSC_1.0
 -- Each scene is 0x1c bits long, chests at 0x0, switches at 0x4, collectibles at 0xc
 local scene_check = function(scene_offset, bit_to_check, scene_data_offset)
-    local local_scene_offset = scene_flags_offset + (0x1c * scene_offset) + scene_data_offset;
+    local local_scene_offset = scene_flags_offset + (0x1c * scene_offset) + scene_data_offset
     local nearby_memory = mainmemory.read_u32_be(local_scene_offset)
     return bit.check(nearby_memory,bit_to_check)
 end
@@ -35,8 +35,21 @@ local on_the_ground_check = function(scene_offset, bit_to_check)
     return scene_check(scene_offset, bit_to_check, 0xC)
 end
 
--- NOTE: Scrubs seem to be stored in the "unused" block of scene memory
-local scrub_check = function(scene_offset, bit_to_check)
+-- NOTE: Scrubs are stored in the "unused" block of scene memory
+local scrub_check = function(scene_offset, bit_to_check, normal_scrub)
+    -- Three specific scrubs need to be checked in two locations: info table and scrub-sanity.
+    -- These three scrubs will always contain a multiworld item, but all other scrubs will only
+    -- contain a multiworld item if scrub-sanity is turned on:
+    -- LW Deku Scrub Near Bridge
+    -- LW Deku Scrub Grotto Front
+    -- HF Deku Scrub Grotto
+    if normal_scrub then
+        -- Perform the info table check and return "1" if the result of the check is "1", otherwise
+        -- fallback to the scrub shuffle check
+        -- TODO: Perform info_table_check
+    end
+
+    -- The rest of the scrubs only need to be checked against the scrub-sanity locations
     return scene_check(scene_offset, bit_to_check, 0x10)
 end
 
@@ -67,7 +80,7 @@ end
 local skulltula_check = function(scene_offset, bit_to_check)
     --For some reason the skulltula array isn't a straight mapping from the scene ID
     scene_offset = skulltula_scene_to_array_index(scene_offset)
-    local local_skulltula_offset = skulltula_flags_offset + (scene_offset);
+    local local_skulltula_offset = skulltula_flags_offset + (scene_offset)
     local nearby_memory = mainmemory.read_u8(local_skulltula_offset)
     return bit.check(nearby_memory,bit_to_check)
 end
@@ -76,7 +89,7 @@ end
 -- 0x8    0x2
 -- 0x4    0x1
 local shop_check = function(shop_offset, item_offset)
-    local local_shop_offset = shop_context_offset;
+    local local_shop_offset = shop_context_offset
     local nearby_memory = mainmemory.read_u32_be(local_shop_offset)
     local bitToCheck = shop_offset*4 + item_offset
     return bit.check(nearby_memory,bitToCheck)
@@ -94,21 +107,21 @@ end
 -- https://wiki.cloudmodding.com/oot/Save_Format#event_chk_inf
 local event_check = function(major_offset,bit_to_check)
     -- shifting over to the next 4 hex digits
-    local event_address = event_context_offset + 0x2 * major_offset;
+    local event_address = event_context_offset + 0x2 * major_offset
     local u_16_event_row = mainmemory.read_u16_be(event_address)
     return bit.check(u_16_event_row,bit_to_check)
 end
 
 -- Used by the game to track some non-quest item event flags
 local item_get_info_check = function(check_offset,bit_to_check)
-    local local_offset = item_get_inf_offset + (check_offset);
+    local local_offset = item_get_inf_offset + (check_offset)
     local nearby_memory = mainmemory.read_u8(local_offset)
     return bit.check(nearby_memory,bit_to_check)
 end
 
 -- Used by the game to track lots of misc information (Talking to people, getting items, etc.)
 local info_table_check = function(check_offset,bit_to_check)
-    local local_offset = inf_table_offset + (check_offset);
+    local local_offset = inf_table_offset + (check_offset)
     local nearby_memory = mainmemory.read_u8(local_offset)
     return bit.check(nearby_memory,bit_to_check)
 end
@@ -161,10 +174,10 @@ local read_lost_woods_checks = function()
     checks["Deku Theater Skull Mask"] = item_get_info_check(0x2, 0x6)
     checks["Deku Theater Mask of Truth"] = item_get_info_check(0x2, 0x7)
     checks["LW Skull Kid"] = item_get_info_check(0x3, 0x6)
-    checks["LW Deku Scrub Near Bridge"] = scrub_check(0x5B, 0xA)
+    checks["LW Deku Scrub Near Bridge"] = scrub_check(0x5B, 0xA, true)
     checks["LW Deku Scrub Near Deku Theater Left"] = scrub_check(0x5B, 0x1)
     checks["LW Deku Scrub Near Deku Theater Right"] = scrub_check(0x5B, 0x2)
-    checks["LW Deku Scrub Grotto Front"] = scrub_check(0x1F, 0xB)
+    checks["LW Deku Scrub Grotto Front"] = scrub_check(0x1F, 0xB, true)
     checks["LW Deku Scrub Grotto Rear"] = scrub_check(0x1F, 0x4)
 
     checks["LW GS Bean Patch Near Bridge"] = skulltula_check(0x0D, 0x0)
@@ -233,7 +246,7 @@ local read_hyrule_field_checks = function()
     checks["HF Tektite Grotto Freestanding PoH"] = on_the_ground_check(0x3E, 0x01)
     checks["HF Southeast Grotto Chest"] = chest_check(0x3E, 0x02)
     checks["HF Open Grotto Chest"] = chest_check(0x3E, 0x03)
-    checks["HF Deku Scrub Grotto"] = scrub_check(0x10, 0x3)
+    checks["HF Deku Scrub Grotto"] = scrub_check(0x10, 0x3, true)
     checks["HF Cow Grotto Cow"] = cow_check(0x3E, 0x19)
 
     checks["HF GS Cow Grotto"] = skulltula_check(0x0A, 0x0)
