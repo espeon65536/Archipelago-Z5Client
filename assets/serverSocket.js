@@ -85,9 +85,10 @@ const connectToServer = async (address) => {
           }
 
           // Get the rom name
-          let romName = null;
-          while(romName === null) {
-            romName = await getRomName();
+          const romName = await getRomName();
+          if (romName === null) {
+            appendConsoleMessage('Timeout while retrieving the rom name. Unable to connect to AP server.');
+            return;
           }
 
           // Authenticate with the server
@@ -136,7 +137,6 @@ const connectToServer = async (address) => {
           players.forEach((player) => {
             romPlayerNames[player.slot] = player.alias;
           });
-          await setNames(romPlayerNames);
 
           n64Interval = setInterval(async () => {
             // Do not run multiple intervals simultaneously
@@ -146,19 +146,26 @@ const connectToServer = async (address) => {
             n64IntervalComplete = false;
 
             // Send items to OoT if there are unsent items waiting
-            let receivedItemCount = null;
-            while (receivedItemCount === null) {
-              receivedItemCount = await getReceivedItemCount();
+            let receivedItemCount = await getReceivedItemCount();
+            if (receivedItemCount === null) {
+              appendConsoleMessage('Timeout while retrieving the received item count.');
+              n64IntervalComplete = true;
+              return;
             }
+
             receivedItemCount = receivedItemCount[0];
             if (receivedItemCount < itemsReceived.length) {
               // If link is currently able to receive an item, send it to him
-              let itemReceivable = null;
-              while (itemReceivable === null) {
-                itemReceivable = await isItemReceivable();
+              let itemReceivable = await isItemReceivable();
+              if (itemReceivable === null) {
+                appendConsoleMessage('Timeout while retrieving value for isItemReceivable.');
+                n64IntervalComplete = true;
+                return;
               }
+
               itemReceivable = itemReceivable[0];
               if (parseInt(itemReceivable, 10)) {
+                await setNames(romPlayerNames);
                 await receiveItem(itemsReceived[receivedItemCount].item);
               }
             }
@@ -187,6 +194,7 @@ const connectToServer = async (address) => {
 
               // If there are new location checks, send them to the AP server
               if (newLocationChecks.length > 0) {
+                await setNames(romPlayerNames);
                 sendLocationChecks(newLocationChecks);
               }
             }

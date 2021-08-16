@@ -174,8 +174,8 @@ local read_lost_woods_checks = function()
         checks["LW Deku Scrub Grotto Front"] = scrub_sanity_check(0x1F, 0xB)
     end
 
-    checks["LW Deku Scrub Near Deku Theater Left"] = scrub_sanity_check(0x5B, 0x1)
-    checks["LW Deku Scrub Near Deku Theater Right"] = scrub_sanity_check(0x5B, 0x2)
+    checks["LW Deku Scrub Near Deku Theater Left"] = scrub_sanity_check(0x5B, 0x2)
+    checks["LW Deku Scrub Near Deku Theater Right"] = scrub_sanity_check(0x5B, 0x1)
     checks["LW Deku Scrub Grotto Rear"] = scrub_sanity_check(0x1F, 0x4)
 
     checks["LW GS Bean Patch Near Bridge"] = skulltula_check(0x0D, 0x0)

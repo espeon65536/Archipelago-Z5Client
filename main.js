@@ -5,6 +5,22 @@ const md5 = require('md5');
 const childProcess = require('child_process');
 const net = require('net');
 
+const createLogFile = () => {
+  // Create log file and open it for writing
+  if (!fs.existsSync(path.join(process.env.APPDATA, 'z5client-logs'))) {
+    fs.mkdirSync(path.join(process.env.APPDATA, 'z5client-logs'));
+  }
+  return fs.openSync(path.join(process.env.APPDATA, 'z5client-logs', `${new Date().getTime()}.txt`), 'w');
+};
+
+process.on('uncaughtException', (error) => {
+  const logFile = createLogFile();
+  fs.writeFileSync(logFile, `[${new Date().toLocaleString()}] ${JSON.stringify(error)}`);
+});
+
+// Create the log file for this run
+const logFile = createLogFile();
+
 // Array to hold socket clients
 const socketClients = {};
 
@@ -170,6 +186,8 @@ app.whenReady().then(async () => {
       app.quit();
     }
   });
+}).catch((error) => {
+  fs.writeFileSync(logFile, `[${new Date().toLocaleString()}] ${JSON.stringify(error)}`);
 });
 
 // IPC listener for client config
@@ -188,13 +206,6 @@ ipcMain.on('setLauncher', (event, args) => {
     })));
   }
 });
-
-// Create log file and open it for writing
-if (!fs.existsSync(path.join(process.env.APPDATA, 'z5client-logs'))) {
-  fs.mkdirSync(path.join(process.env.APPDATA, 'z5client-logs'));
-}
-const logFile = fs.openSync(path.join(process.env.APPDATA, 'z5client-logs', `${new Date().getTime()}.txt`), 'w');
-fs.writeFileSync(logFile, `[${new Date().toLocaleString()}] Log begins.`);
 
 // IPC listener for logging
 ipcMain.handle('writeToLog', (event, data) => fs.writeFileSync(logFile, `[${new Date().toLocaleString()}] ${data}`));
