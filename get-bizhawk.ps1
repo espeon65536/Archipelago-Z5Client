@@ -48,6 +48,10 @@ $config = Get-Content -Path "$bizHawkDir\config.ini" -Raw
 $config = $config -replace '"UseNLua": true', '"UseNLua": false' # Disable NLua
 $config = $config -replace '"BackupSaveram": false', '"BackupSaveram": true' # Enable SRAM backups
 $config = $config -replace '"AutosaveSaveRAM": false', '"AutosaveSaveRAM": true' # Enable automatic backup of SRAM
+$config = $config -replace '"Bindings": ".*"', '"Bindings": ""' # Disable all hotkeys
+$config = $config -replace '"DefaultBinding": ".*"', '"DefaultBinding": ""' # Disable all default hotkeys
+$config = $config -replace '"RunInBackground": false', '"RunInBackground": true' # Run in background
+$config = $config -replace '"AcceptBackgroundInput": false', '"AcceptBackgroundInput": true' # Enable background input
 Out-File -FilePath "$bizHawkDir\config.ini" -InputObject $config
 
 # Download LuaSocket
