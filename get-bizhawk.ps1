@@ -41,11 +41,13 @@ Start-Process "$bizHawkDir\EmuHawk.exe"
 Start-Sleep -s 10
 Get-Process EmuHawk | Foreach-Object { $_.CloseMainWindow() }
 
-# Disable NLua in BizHawk
+# Set some config options
 echo "Updating BizHawk 2.3 configuration options..."
 Start-Sleep 2 # Give time for BizHawk to write its config file
 $config = Get-Content -Path "$bizHawkDir\config.ini" -Raw
-$config = $config -replace '"UseNLua": true', '"UseNLua": false'
+$config = $config -replace '"UseNLua": true', '"UseNLua": false' # Disable NLua
+$config = $config -replace '"BackupSaveram": false', '"BackupSaveram": true' # Enable SRAM backups
+$config = $config -replace '"AutosaveSaveRAM": false', '"AutosaveSaveRAM": true' # Enable automatic backup of SRAM
 Out-File -FilePath "$bizHawkDir\config.ini" -InputObject $config
 
 # Download LuaSocket
