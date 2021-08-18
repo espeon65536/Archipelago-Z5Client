@@ -5,21 +5,31 @@ const md5 = require('md5');
 const childProcess = require('child_process');
 const net = require('net');
 
+// File handler used for the log file, may be opened in a couple locations
+let logFile = null;
+
 const createLogFile = () => {
   // Create log file and open it for writing
   if (!fs.existsSync(path.join(process.env.APPDATA, 'z5client-logs'))) {
     fs.mkdirSync(path.join(process.env.APPDATA, 'z5client-logs'));
   }
+
+  if (logFile) { return logFile; }
   return fs.openSync(path.join(process.env.APPDATA, 'z5client-logs', `${new Date().getTime()}.txt`), 'w');
 };
 
 process.on('uncaughtException', (error) => {
   const logFile = createLogFile();
   fs.writeFileSync(logFile, `[${new Date().toLocaleString()}] ${JSON.stringify(error)}`);
+
+  // If there is another client bound to the address, close this client
+  if (error.code === 'EADDRINUSE') {
+    process.kill(process.pid);
+  }
 });
 
 // Create the log file for this run
-const logFile = createLogFile();
+logFile = createLogFile();
 
 // Array to hold socket clients
 const socketClients = {};
