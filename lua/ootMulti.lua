@@ -53,7 +53,19 @@ local great_fairy_magic_check = function(scene_offset,bit_to_check)
 end
 
 local membership_card_check = function(scene_offset,bit_to_check)
-    return scene_check(scene_offset, bit_to_check, 0x4)
+    -- These checks used to be part of Gerudo Fortress, but they are better used as an approximation for the
+    -- membership card check. You will always have obtained the membership card if you have rescued all four carpenters.
+    -- checks["Gerudo Fortress - Free North F1 Carpenter"] = event_check(0x9, 0x0)
+    -- checks["Gerudo Fortress - Free North F2 Carpenter"] = event_check(0x9, 0x3)
+    -- checks["Gerudo Fortress - Free South F1 Carpenter"] = event_check(0x9, 0x1)
+    -- checks["Gerudo Fortress - Free South F2 Carpenter"] = event_check(0x9, 0x2)
+
+    -- No need to save these checks in a table as they combine to create a conditional
+    return event_check(0x9, 0x0) and event_check(0x9, 0x1) and event_check(0x9, 0x2) and event_check(0x9, 0x3)
+
+    -- This is the old version of the membership card check, which is inaccurate and always returns true
+    -- so long as a save context is loaded
+    -- return scene_check(scene_offset, bit_to_check, 0x4)
 end
 
 --Helper method to resolve skulltula lookup location
@@ -673,11 +685,6 @@ local read_gerudo_fortress_checks = function()
     checks["GF South F2 Carpenter"] = on_the_ground_check(0xC, 0xF)
     checks["GF Gerudo Membership Card"] = membership_card_check(0xC, 0x2)
     checks["GF Chest"] = chest_check(0x5D, 0x0)
-    -- These checks are not currently used by the Archipelago Randomizer
-    -- checks["Gerudo Fortress - Free North F1 Carpenter"] = event_check(0x9, 0x0)
-    -- checks["Gerudo Fortress - Free North F2 Carpenter"] = event_check(0x9, 0x3)
-    -- checks["Gerudo Fortress - Free South F1 Carpenter"] = event_check(0x9, 0x1)
-    -- checks["Gerudo Fortress - Free South F2 Carpenter"] = event_check(0x9, 0x2)
     checks["GF HBA 1000 Points"] = info_table_check(0x33, 0x0)
     checks["GF HBA 1500 Points"] = item_get_info_check(0x0, 0x7)
     checks["GF GS Top Floor"] = skulltula_check(0x14, 0x1)
