@@ -177,7 +177,7 @@ const connectToServer = async (address) => {
               n64IntervalComplete = true;
               return;
             }
-            if (gameMode[0] === 'Title Screen') {
+            if (!['Normal Gameplay', 'Cutscene', 'Paused'].includes(gameMode[0])) {
               n64IntervalComplete = true;
               return;
             }

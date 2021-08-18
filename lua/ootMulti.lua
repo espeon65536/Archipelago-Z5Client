@@ -28,7 +28,27 @@ local scene_check = function(scene_offset, bit_to_check, scene_data_offset)
 end
 
 local chest_check = function(scene_offset, bit_to_check)
-    return scene_check(scene_offset, bit_to_check, 0x0)
+    -- If the chest is saved as having been opened in the save context, that means this check has been completed
+    local chest_checked_in_save_context = scene_check(scene_offset, bit_to_check, 0x0)
+    if chest_checked_in_save_context then return true end
+
+    -- If the chest is not present in the save context, it may have been opened in the temporary context. In this
+    -- context, we must read from a particular location to determine if a chest has been checked:
+    -- 0x40002C is written to whenever a remote item is found. There are four relevant bytes:
+    -- [0] should always be 0x00 when a chest is checked
+    -- [1] is the scene id
+    -- [2] is the location type, which for a chest is 0x01
+    -- [3] is the location id within the scene, and represents the bit which was checked
+    local check_data = mainmemory.readbyterange(0x40002C,4)
+
+    -- If the data in the byte range does not match the chest we are looking for, return false
+    if check_data[0] ~= 0x00 then return false end
+    if check_data[1] ~= scene_offset then return false end
+    if check_data[2] ~= 0x01 then return false end
+    if check_data[3] ~= bit_to_check then return false end
+
+    -- The check matches, and the chest is open in the temporary context
+    return true
 end
 
 local on_the_ground_check = function(scene_offset, bit_to_check)
@@ -50,22 +70,6 @@ end
 
 local great_fairy_magic_check = function(scene_offset,bit_to_check)
     return scene_check(scene_offset, bit_to_check, 0x4)
-end
-
-local membership_card_check = function(scene_offset,bit_to_check)
-    -- These checks used to be part of Gerudo Fortress, but they are better used as an approximation for the
-    -- membership card check. You will always have obtained the membership card if you have rescued all four carpenters.
-    -- checks["Gerudo Fortress - Free North F1 Carpenter"] = event_check(0x9, 0x0)
-    -- checks["Gerudo Fortress - Free North F2 Carpenter"] = event_check(0x9, 0x3)
-    -- checks["Gerudo Fortress - Free South F1 Carpenter"] = event_check(0x9, 0x1)
-    -- checks["Gerudo Fortress - Free South F2 Carpenter"] = event_check(0x9, 0x2)
-
-    -- No need to save these checks in a table as they combine to create a conditional
-    return event_check(0x9, 0x0) and event_check(0x9, 0x1) and event_check(0x9, 0x2) and event_check(0x9, 0x3)
-
-    -- This is the old version of the membership card check, which is inaccurate and always returns true
-    -- so long as a save context is loaded
-    -- return scene_check(scene_offset, bit_to_check, 0x4)
 end
 
 --Helper method to resolve skulltula lookup location
@@ -123,6 +127,22 @@ local info_table_check = function(check_offset,bit_to_check)
     local local_offset = inf_table_offset + (check_offset)
     local nearby_memory = mainmemory.read_u8(local_offset)
     return bit.check(nearby_memory,bit_to_check)
+end
+
+local membership_card_check = function(scene_offset,bit_to_check)
+    -- These checks used to be part of Gerudo Fortress, but they are better used as an approximation for the
+    -- membership card check. You will always have obtained the membership card if you have rescued all four carpenters.
+    -- checks["Gerudo Fortress - Free North F1 Carpenter"] = event_check(0x9, 0x0)
+    -- checks["Gerudo Fortress - Free North F2 Carpenter"] = event_check(0x9, 0x3)
+    -- checks["Gerudo Fortress - Free South F1 Carpenter"] = event_check(0x9, 0x1)
+    -- checks["Gerudo Fortress - Free South F2 Carpenter"] = event_check(0x9, 0x2)
+
+    -- No need to save these checks in a table as they combine to create a conditional
+    return event_check(0x9, 0x0) and event_check(0x9, 0x1) and event_check(0x9, 0x2) and event_check(0x9, 0x3)
+
+    -- This is the old version of the membership card check, which is inaccurate and always returns true
+    -- so long as a save context is loaded
+    -- return scene_check(scene_offset, bit_to_check, 0x4)
 end
 
 -- The fishing records are intricate and in their own memory area
