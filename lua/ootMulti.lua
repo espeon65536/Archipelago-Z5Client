@@ -1899,6 +1899,13 @@ lib.isItemReceivable = function()
     return details.name == "Normal Gameplay" and shop_scenes[scene] == nil and playerQueued == 0 and itemQueued == 0
 end
 
+-- Determine the current game mode
+lib.getCurrentGameMode = function()
+    local details
+    _, details = oot.get_current_game_mode()
+    return details.name
+end
+
 -- Find the number of items received by the ROM
 lib.getReceivedItemCount = function()
     return mainmemory.read_u16_be(internal_count_addr)
@@ -2093,6 +2100,12 @@ local runMessageWatcher = coroutine.wrap(function()
                         end
                     end
                 connection:send(message)
+            end
+
+            -- Expects message format: "getCurrentGameMode"
+            -- Returns message format: "requestComplete|gameMode"
+            if command == 'getCurrentGameMode' then
+                connection:send('requestComplete|' .. lib.getCurrentGameMode())
             end
 		end)()
 		coroutine.yield()

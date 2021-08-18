@@ -170,6 +170,18 @@ const connectToServer = async (address) => {
               }
             }
 
+            // Do not check locations if the title screen is loaded
+            const gameMode = await getCurrentGameMode();
+            if (gameMode === null) {
+              appendConsoleMessage('Timeout while retrieving current game mode.');
+              n64IntervalComplete = true;
+              return;
+            }
+            if (gameMode[0] === 'Title Screen') {
+              n64IntervalComplete = true;
+              return;
+            }
+
             // Get location checks from OoT
             const romLocationsChecked = await getLocationChecks();
             if (romLocationsChecked !== null) {

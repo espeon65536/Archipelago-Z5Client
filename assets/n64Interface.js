@@ -53,3 +53,7 @@ const receiveItem = (itemId) => new Promise((resolve) => {
   window.oot.receiveItem(romItemsByName[apItemsById[itemId]]);
 });
 
+const getCurrentGameMode = () => new Promise((resolve) => {
+  setResolve(resolve);
+  window.oot.getCurrentGameMode();
+});

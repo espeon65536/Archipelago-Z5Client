@@ -287,3 +287,8 @@ ipcMain.on('getLocationChecks', (event) => {
     socket.write(socketMessage('getLocationChecks'));
   });
 });
+ipcMain.on('getCurrentGameMode', (event) => {
+  Object.values(socketClients).forEach((socket) => {
+    socket.write(socketMessage('getCurrentGameMode'));
+  });
+});
