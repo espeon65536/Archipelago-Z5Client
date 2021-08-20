@@ -123,13 +123,17 @@ app.whenReady().then(async () => {
 
   // Load the config into memory
   const config = JSON.parse(fs.readFileSync(configPath).toString());
-  const baseRomHash = '5bd1fe107bf8106b2ab6650abecd54d6';
+  const validRomHashes = [
+    '5BD1FE107BF8106B2AB6650ABECD54D6'.toLowerCase(),
+    '6697768A7A7DF2DD27A692A2638EA90B'.toLowerCase(),
+    // Uncompressed is currently unsupported
+  ];
 
   // Prompt for base rom file if not present in config, missing from disk, or it fails the hash check
   if (
     !config.hasOwnProperty('baseRomPath') || // Base ROM not present in config file
     !fs.existsSync(config.baseRomPath) || // Base ROM not present on file system
-    md5(fs.readFileSync(config.baseRomPath)) !== baseRomHash // Base ROM fails hash check
+    !validRomHashes.includes(md5(fs.readFileSync(config.baseRomPath))) // Base ROM fails hash check
   ) {
     let baseRomPath = dialog.showOpenDialogSync(null, {
       title: 'Select base ROM',
@@ -152,7 +156,7 @@ app.whenReady().then(async () => {
     if (arg.substr(-5).toLowerCase() === '.apz5') {
       if (config.hasOwnProperty('baseRomPath') && fs.existsSync(config.baseRomPath)) {
         if (!fs.existsSync(arg)) { break; }
-        if (md5(fs.readFileSync(config.baseRomPath)) !== baseRomHash) {
+        if (!validRomHashes.includes(md5(fs.readFileSync(config.baseRomPath)))) {
           dialog.showMessageBoxSync({
             type: 'info',
             title: 'Invalid Base ROM',
@@ -169,7 +173,7 @@ app.whenReady().then(async () => {
 
         // If a custom launcher is specified, attempt to launch the ROM file using the specified loader
         if (config.hasOwnProperty('launcherPath') && fs.existsSync(config.launcherPath)) {
-          childProcess.spawn(config.launcherPath, [romFilePath], { detached: true });
+          childProcess.spawn(config.launcherPath, [outPath], { detached: true });
           break;
         }
         // If no custom launcher is specified, launch the rom with explorer on Windows
