@@ -232,11 +232,6 @@ const connectToServer = async (address) => {
               }
             }
 
-            // TODO: DELETE THIS LINE
-            // This is a workaround for a race condition caused by the ROM's assembly. Espeon is currently working
-            // on correcting that race condition.
-            await new Promise((resolve) => setTimeout(resolve,500));
-
             // Interval complete, allow a new run
             n64IntervalComplete = true;
           });
