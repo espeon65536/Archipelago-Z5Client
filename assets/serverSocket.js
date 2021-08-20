@@ -165,26 +165,27 @@ const connectToServer = async (address) => {
               }
             }
 
-            // Send items to OoT if there are unsent items waiting
-            let receivedItemCount = await getReceivedItemCount();
-            if (receivedItemCount === null) {
-              appendConsoleMessage('Timeout while retrieving the received item count.');
+            // Check if link is currently able to receive an item
+            let itemReceivable = await isItemReceivable();
+            if (itemReceivable === null) {
+              appendConsoleMessage('Timeout while retrieving value for isItemReceivable.');
               n64IntervalComplete = true;
               return;
             }
 
-            receivedItemCount = receivedItemCount[0];
-            if (receivedItemCount < itemsReceived.length) {
-              // If link is currently able to receive an item, send it to him
-              let itemReceivable = await isItemReceivable();
-              if (itemReceivable === null) {
-                appendConsoleMessage('Timeout while retrieving value for isItemReceivable.');
+            itemReceivable = itemReceivable[0];
+            // If link can receive an item, see if there are any items to send. This order is important because
+            // we know if link is able to receive an item, the received items count will always be correct
+            if (parseInt(itemReceivable, 10)) {
+              let receivedItemCount = await getReceivedItemCount();
+              if (receivedItemCount === null) {
+                appendConsoleMessage('Timeout while retrieving the received item count.');
                 n64IntervalComplete = true;
                 return;
               }
 
-              itemReceivable = itemReceivable[0];
-              if (parseInt(itemReceivable, 10)) {
+              receivedItemCount = receivedItemCount[0];
+              if (receivedItemCount < itemsReceived.length) {
                 await setNames(romPlayerNames);
                 await receiveItem(itemsReceived[receivedItemCount].item);
               }
