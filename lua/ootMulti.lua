@@ -1875,6 +1875,7 @@ setmetatable(_G, old_global_metatable)
 -- Library of helper functions used by the socket loop
 -------------------------------------------------------
 lib = {}
+lib.game_complete = false
 
 local rando_context = mainmemory.read_u32_be(0x1C6E90 + 0x15D4) - 0x80000000
 local coop_context = mainmemory.read_u32_be(rando_context + 0x0000) - 0x80000000
@@ -1976,6 +1977,26 @@ lib.setPlayerName = function(id, name)
     for i = name_index, player_name_length - 1 do
         mainmemory.write_u8(name_address + i, 0xDF)
     end
+end
+
+lib.isGameComplete = function()
+    -- If the game is complete, do not read memory
+    if lib.game_complete then return true end
+
+    -- contains a pointer to the current scene
+    local scene_pointer = mainmemory.read_u32_be(0x1CA208)
+
+    local triforce_hunt_complete = 0x80383C10 -- pointer credits location set by completed triforce hunt
+    local ganon_defeated = 0x80382720 -- pointer to cutscene when ganon is defeated
+
+    -- If the game is complete, set the lib variable and report the game as completed
+    if (scene_pointer == triforce_hunt_complete) or (scene_pointer == ganon_defeated) then
+        lib.game_complete = true
+        return true
+    end
+
+    -- Game is still ongoing
+    return false
 end
 
 lib.getLocationChecks = scanner.check_all_locations
@@ -2126,6 +2147,16 @@ local runMessageWatcher = coroutine.wrap(function()
             -- Returns message format: "requestComplete|gameMode"
             if command == 'getCurrentGameMode' then
                 connection:send('requestComplete|' .. lib.getCurrentGameMode())
+            end
+
+            if command == 'isGameComplete' then
+                local gameComplete = ""
+                if lib.isGameComplete() then
+                    gameComplete = "1"
+                else
+                    gameComplete = "0"
+                end
+                connection:send('requestComplete|' .. gameComplete)
             end
 		end)()
 		coroutine.yield()

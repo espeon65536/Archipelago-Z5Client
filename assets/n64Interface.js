@@ -57,3 +57,8 @@ const getCurrentGameMode = () => new Promise((resolve) => {
   setResolve(resolve);
   window.oot.getCurrentGameMode();
 });
+
+const isGameComplete = () => new Promise((resolve) => {
+  setResolve(resolve);
+  window.oot.isGameComplete();
+});

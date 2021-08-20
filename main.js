@@ -302,3 +302,8 @@ ipcMain.on('getCurrentGameMode', (event) => {
     socket.write(socketMessage('getCurrentGameMode'));
   });
 });
+ipcMain.on('isGameComplete', (event) => {
+  Object.values(socketClients).forEach((socket) => {
+    socket.write(socketMessage('isGameComplete'));
+  });
+});

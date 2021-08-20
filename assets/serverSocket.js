@@ -13,6 +13,7 @@ let reconnectInterval = null;
 let checkedLocations = [];
 let missingLocations = [];
 
+let gameComplete = false;
 const CLIENT_STATUS = {
   CLIENT_UNKNOWN: 0,
   CLIENT_READY: 10,
@@ -144,6 +145,25 @@ const connectToServer = async (address) => {
 
             // Interval has started
             n64IntervalComplete = false;
+
+            // Determine if the game is complete, and notify the server if that has not been done already
+            if (!gameComplete) {
+              const romGameComplete = await isGameComplete();
+              if (romGameComplete === null) {
+                appendConsoleMessage('Timeout while retrieving the game completion status.');
+              } else {
+                if (parseInt(romGameComplete[0], 10) === 1) {
+                  // Notify AP server of game completion
+                  if (serverSocket && serverSocket.readyState === WebSocket.OPEN) {
+                    gameComplete = true;
+                    serverSocket.send(JSON.stringify({
+                      cmd: 'StatusUpdate',
+                      status: CLIENT_STATUS.CLIENT_GOAL,
+                    }));
+                  }
+                }
+              }
+            }
 
             // Send items to OoT if there are unsent items waiting
             let receivedItemCount = await getReceivedItemCount();
