@@ -124,9 +124,9 @@ app.whenReady().then(async () => {
   // Load the config into memory
   const config = JSON.parse(fs.readFileSync(configPath).toString());
   const validRomHashes = [
-    '5BD1FE107BF8106B2AB6650ABECD54D6'.toLowerCase(),
-    '6697768A7A7DF2DD27A692A2638EA90B'.toLowerCase(),
-    '875B8C33EEBF6A7D9FC33810020441B7'.toLowerCase(), // Decompressed
+    '5BD1FE107BF8106B2AB6650ABECD54D6'.toLowerCase(), // Compressed little-endian
+    '6697768A7A7DF2DD27A692A2638EA90B'.toLowerCase(), // Compressed big-endian
+    '05f0f3ebacbc8df9243b6148ffe4792f'.toLowerCase(), // Decompressed
   ];
 
   // Prompt for base rom file if not present in config, missing from disk, or it fails the hash check
