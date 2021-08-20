@@ -1488,7 +1488,7 @@ local Scene_Flags_Type = Layout:create {
 }
 
 local Save_Context = Layout:create {
-    time = 					 e( 0x000C, Int_16 ),
+    time =                      e( 0x000C, Int_16 ),
     max_health =             e( 0x002E, Int_16 ),
     cur_health =             e( 0x0030, Int_16 ),
     magic_meter_level =      e( 0x0032, Int_8 ),
@@ -1541,12 +1541,12 @@ local save_context = Pointer:new( 0x11A5D0, Save_Context )
 local global_context = Pointer:new( 0x1C84A0, Global_Context )
 
 -- declare('find_malon', function()
--- 	local npc = global_context.actor_table.npc.first
--- 	while npc ~= "Null" do
--- 		if npc.id == 0xE7 then return npc end
--- 		npc = npc.next_actor
--- 	end
--- 	return "Null"
+--     local npc = global_context.actor_table.npc.first
+--     while npc ~= "Null" do
+--         if npc.id == 0xE7 then return npc end
+--         npc = npc.next_actor
+--     end
+--     return "Null"
 -- end)
 
 
@@ -2023,75 +2023,75 @@ local stringSplit = function(str, sep)
 end
 
 local connectToAPClient = function()
-	-- Open a TCP socket
-	print('Connecting to AP client at ' .. host .. ':' .. port)
-	connection, err = socket:tcp()
-	if err ~= nil then
-		print(err)
-		return false
-	end
+    -- Open a TCP socket
+    print('Connecting to AP client at ' .. host .. ':' .. port)
+    connection, err = socket:tcp()
+    if err ~= nil then
+        print(err)
+        return false
+    end
 
-	-- Establish connection to socket server hosted on AP Client
-	connection:setoption('linger', {['on']=false, ['timeout']=0})
-	local returnCode, errorMessage = connection:connect(host, port)
-	if (returnCode == nil) then
-		print('Error while connecting: ' .. errorMessage)
-		print('Please restart the LUA script to reconnect to the AP Client.')
-		return false
-	end
-	print('Connection established.')
-	connection:settimeout(0)
-	return true
+    -- Establish connection to socket server hosted on AP Client
+    connection:setoption('linger', {['on']=false, ['timeout']=0})
+    local returnCode, errorMessage = connection:connect(host, port)
+    if (returnCode == nil) then
+        print('Error while connecting: ' .. errorMessage)
+        print('Please restart the LUA script to reconnect to the AP Client.')
+        return false
+    end
+    print('Connection established.')
+    connection:settimeout(0)
+    return true
 end
 
 local runMessageWatcher = coroutine.wrap(function()
-	while true do
-		(function()
-			-- If the connection has been closed, stop looping and end the coroutine
-			if not clientConnected then
-				print('Connection has been closed. Attempting to reconnect.')
-				if not connectToAPClient() then
-					print('Unable to re-establish connection to AP Client. Please make sure it is running, ' ..
-							'then restart this script.')
-					return
-				end
-			end
+    while true do
+        (function()
+            -- If the connection has been closed, stop looping and end the coroutine
+            if not clientConnected then
+                print('Connection has been closed. Attempting to reconnect.')
+                if not connectToAPClient() then
+                    print('Unable to re-establish connection to AP Client. Please make sure it is running, ' ..
+                            'then restart this script.')
+                    return
+                end
+            end
 
-			local msg, status = connection:receive()
+            local msg, status = connection:receive()
 
-			-- If the server has closed the connection, do nothing
-			if status == 'closed' then
-				print('Lost connection to AP Client. Make sure the client is running, then restart this script.')
-				connection:close()
-				clientConnected = false
-				return
-			end
+            -- If the server has closed the connection, do nothing
+            if status == 'closed' then
+                print('Lost connection to AP Client. Make sure the client is running, then restart this script.')
+                connection:close()
+                clientConnected = false
+                return
+            end
 
-			-- If no message was received before a timeout, do nothing
-			if status == 'timeout' then return end
+            -- If no message was received before a timeout, do nothing
+            if status == 'timeout' then return end
 
-			-- If the message is empty, also do nothing
-			if not msg then return end
+            -- If the message is empty, also do nothing
+            if not msg then return end
 
-			-- Handle the message
-			-- Message structure: command|arg1|arg2|...
-			-- Different commands have different expectations of arguments, described in comments where each
-			-- command is handled
-			local messageParts = stringSplit(msg, '|')
+            -- Handle the message
+            -- Message structure: command|arg1|arg2|...
+            -- Different commands have different expectations of arguments, described in comments where each
+            -- command is handled
+            local messageParts = stringSplit(msg, '|')
             local command = messageParts[1]
 
             -- Expects message format: "receiveItem|itemOffset"
             -- Returns message format: "requestComplete"
-		    if command == 'receiveItem' then
+            if command == 'receiveItem' then
                 local itemOffset = messageParts[2]
-		        lib.receiveItem(lib.localPlayerNumber,tonumber(itemOffset))
-		        connection:send('requestComplete')
-			    return
-			end
+                lib.receiveItem(lib.localPlayerNumber,tonumber(itemOffset))
+                connection:send('requestComplete')
+                return
+            end
 
             -- Expects message format: "isItemReceivable"
             -- Returns message format: "requestComplete|readyStatus"
-			if command == 'isItemReceivable' then
+            if command == 'isItemReceivable' then
                 local readyStatus = ""
                 if lib.isItemReceivable() then
                     readyStatus = "1"
@@ -2099,8 +2099,8 @@ local runMessageWatcher = coroutine.wrap(function()
                     readyStatus = "0"
                 end
                 connection:send('requestComplete|' .. readyStatus)
-			    return
-			end
+                return
+            end
 
             -- Expects message format: "getReceivedItemCount"
             -- Returns message format: "requestComplete|receivedItemCount"
@@ -2158,9 +2158,9 @@ local runMessageWatcher = coroutine.wrap(function()
                 end
                 connection:send('requestComplete|' .. gameComplete)
             end
-		end)()
-		coroutine.yield()
-	end
+        end)()
+        coroutine.yield()
+    end
 end)
 
 -- Connect to the AP Client's socket server
@@ -2170,9 +2170,9 @@ clientConnected = connectToAPClient()
 while true do
     if not clientConnected then break end
 
-	-- If a the client is connected and a message bas been received on the socket connection, act on it
-	if clientConnected then runMessageWatcher() end
+    -- If a the client is connected and a message bas been received on the socket connection, act on it
+    if clientConnected then runMessageWatcher() end
 
-	-- Advance the emulator by one frame
-	emu.frameadvance()
+    -- Advance the emulator by one frame
+    emu.frameadvance()
 end
