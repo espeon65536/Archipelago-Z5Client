@@ -126,7 +126,7 @@ app.whenReady().then(async () => {
   const validRomHashes = [
     '5BD1FE107BF8106B2AB6650ABECD54D6'.toLowerCase(),
     '6697768A7A7DF2DD27A692A2638EA90B'.toLowerCase(),
-    // Uncompressed is currently unsupported
+    '875B8C33EEBF6A7D9FC33810020441B7'.toLowerCase(), // Decompressed
   ];
 
   // Prompt for base rom file if not present in config, missing from disk, or it fails the hash check
