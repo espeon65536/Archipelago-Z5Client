@@ -173,21 +173,23 @@ const connectToServer = async (address) => {
               return;
             }
 
-            itemReceivable = itemReceivable[0];
-            // If link can receive an item, see if there are any items to send. This order is important because
-            // we know if link is able to receive an item, the received items count will always be correct
-            if (parseInt(itemReceivable, 10)) {
-              let receivedItemCount = await getReceivedItemCount();
-              if (receivedItemCount === null) {
-                appendConsoleMessage('Timeout while retrieving the received item count.');
-                n64IntervalComplete = true;
-                return;
-              }
+            if (receiveItems) {
+              itemReceivable = itemReceivable[0];
+              // If link can receive an item, see if there are any items to send. This order is important because
+              // we know if link is able to receive an item, the received items count will always be correct
+              if (parseInt(itemReceivable, 10)) {
+                let receivedItemCount = await getReceivedItemCount();
+                if (receivedItemCount === null) {
+                  appendConsoleMessage('Timeout while retrieving the received item count.');
+                  n64IntervalComplete = true;
+                  return;
+                }
 
-              receivedItemCount = receivedItemCount[0];
-              if (receivedItemCount < itemsReceived.length) {
-                await setNames(romPlayerNames);
-                await receiveItem(itemsReceived[receivedItemCount].item);
+                receivedItemCount = receivedItemCount[0];
+                if (receivedItemCount < itemsReceived.length) {
+                  await setNames(romPlayerNames);
+                  await receiveItem(itemsReceived[receivedItemCount].item);
+                }
               }
             }
 
