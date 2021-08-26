@@ -74,6 +74,30 @@ local on_the_ground_check = function(scene_offset, bit_to_check)
     return true
 end
 
+local boss_item_check = function(scene_offset)
+    -- If the chest is saved as having been opened in the save context, that means this check has been completed
+    local chest_checked_in_save_context = chest_check(scene_offset, 0x1F)
+    if chest_checked_in_save_context then return true end
+
+    -- If the chest is not present in the save context, it may have been opened in the temporary context. In this
+    -- context, we must read from a particular location to determine if a chest has been checked:
+    -- 0x40002C is written to whenever a remote item is found. There are four relevant bytes:
+    -- [0] should always be 0x00 when a chest is checked
+    -- [1] is the scene id
+    -- [2] is the location type, which for a chest is 0x01
+    -- [3] is the location id within the scene, and represents the bit which was checked
+    local check_data = mainmemory.readbyterange(0x40002C,4)
+
+    -- If the data in the byte range does not match the chest we are looking for, return false
+    if check_data[0] ~= 0x00 then return false end
+    if check_data[1] ~= scene_offset then return false end
+    if check_data[2] ~= 0x00 then return false end
+    if check_data[3] ~= 0x4F then return false end
+
+    -- The check matches, and the chest is open in the temporary context
+    return true
+end
+
 -- NOTE: Scrubs are stored in the "unused" block of scene memory
 local scrub_sanity_check = function(scene_offset, bit_to_check)
     return scene_check(scene_offset, bit_to_check, 0x10)
@@ -258,7 +282,7 @@ local read_deku_tree_checks = function()
     checks["Deku Tree GS Basement Gate"] = skulltula_check(0x0, 0x1)
     checks["Deku Tree GS Basement Back Room"] = skulltula_check(0x0, 0x0)
 
-    checks["Deku Tree Queen Gohma Heart"] = on_the_ground_check(0x11, 0x1F)
+    checks["Deku Tree Queen Gohma Heart"] = boss_item_check(0x11)
     return checks
 end
 
@@ -284,7 +308,7 @@ local read_forest_temple_checks = function()
     checks["Forest Temple GS Level Island Courtyard"] = skulltula_check(0x03, 0x2)
     checks["Forest Temple GS Basement"] = skulltula_check(0x03, 0x4)
 
-    checks["Forest Temple Phantom Ganon Heart"] = on_the_ground_check(0x14, 0x1F)
+    checks["Forest Temple Phantom Ganon Heart"] = boss_item_check(0x14)
     return checks
 end
 
@@ -473,7 +497,7 @@ local read_shadow_temple_checks = function()
     checks["Shadow Temple GS Near Ship"] = skulltula_check(0x07, 0x4)
     checks["Shadow Temple GS Triple Giant Pot"] = skulltula_check(0x07, 0x2)
 
-    checks["Shadow Temple Bongo Bongo Heart"] = on_the_ground_check(0x18, 0x1F)
+    checks["Shadow Temple Bongo Bongo Heart"] = boss_item_check(0x18)
     return checks
 end
 
@@ -553,7 +577,7 @@ local read_dodongos_cavern_checks = function()
     checks["Dodongos Cavern GS Vines Above Stairs"] = skulltula_check(0x01, 0x0)
     checks["Dodongos Cavern GS Back Room"] = skulltula_check(0x01, 0x3)
 
-    checks["Dodongos Cavern King Dodongo Heart"] = on_the_ground_check(0x12, 0x1F)
+    checks["Dodongos Cavern King Dodongo Heart"] = boss_item_check(0x12)
     return checks
 end
 
@@ -580,7 +604,7 @@ local read_fire_temple_checks = function()
     checks["Fire Temple GS Scarecrow Climb"] = skulltula_check(0x04, 0x4)
     checks["Fire Temple GS Scarecrow Top"] = skulltula_check(0x04, 0x3)
 
-    checks["Fire Temple Volvagia Heart"] = on_the_ground_check(0x15, 0x1F)
+    checks["Fire Temple Volvagia Heart"] = boss_item_check(0x15)
     return checks
 end
 
@@ -639,7 +663,7 @@ local read_jabu_checks = function()
     checks["Jabu Jabus Belly GS Lobby Basement Upper"] = skulltula_check(0x02, 0x1)
     checks["Jabu Jabus Belly GS Near Boss"] = skulltula_check(0x02, 0x2)
 
-    checks["Jabu Jabus Belly Barinade Heart"] = on_the_ground_check(0x13, 0x1F)
+    checks["Jabu Jabus Belly Barinade Heart"] = boss_item_check(0x13)
     return checks
 end
 
@@ -696,7 +720,7 @@ local read_water_temple_checks = function()
     checks["Water Temple GS Falling Platform Room"] = skulltula_check(0x05, 0x1)
     checks["Water Temple GS River"] = skulltula_check(0x05, 0x4)
 
-    checks["Water Temple Morpha Heart"] = on_the_ground_check(0x16, 0x1F)
+    checks["Water Temple Morpha Heart"] = boss_item_check(0x16)
     return checks
 end
 
@@ -809,7 +833,7 @@ local read_spirit_temple_checks = function()
     checks["Spirit Temple GS Lobby"] = skulltula_check(0x06, 0x2)
     checks["Spirit Temple GS Boulder Room"] = skulltula_check(0x06, 0x1)
 
-    checks["Spirit Temple Twinrova Heart"] = on_the_ground_check(0x17, 0x1F)
+    checks["Spirit Temple Twinrova Heart"] = boss_item_check(0x17)
     return checks
 end
 
