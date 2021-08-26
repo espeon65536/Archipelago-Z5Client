@@ -35,7 +35,7 @@ local chest_check = function(scene_offset, bit_to_check)
     -- If the chest is not present in the save context, it may have been opened in the temporary context. In this
     -- context, we must read from a particular location to determine if a chest has been checked:
     -- 0x40002C is written to whenever a remote item is found. There are four relevant bytes:
-    -- [0] should always be 0x00 when a chest is checked
+    -- [0] should always be 0x00 when a non-local multiworld item is checked
     -- [1] is the scene id
     -- [2] is the location type, which for a chest is 0x01
     -- [3] is the location id within the scene, and represents the bit which was checked
@@ -58,9 +58,9 @@ local on_the_ground_check = function(scene_offset, bit_to_check)
     -- If the item is not present in the save context, it may have been obtained in the temporary context. In this
     -- context, we must read from a particular location to determine if a chest has been checked:
     -- 0x40002C is written to whenever a remote item is found. There are four relevant bytes:
-    -- [0] should always be 0x00 when a chest is checked
+    -- [0] should always be 0x00 when a non-local multiworld item is checked
     -- [1] is the scene id
-    -- [2] is the location type, which for a chest is 0x01
+    -- [2] is the location type, which for a freestanding item is 0x02
     -- [3] is the location id within the scene, and represents the bit which was checked
     local check_data = mainmemory.readbyterange(0x40002C,4)
 
@@ -82,9 +82,9 @@ local boss_item_check = function(scene_offset)
     -- If the chest is not present in the save context, it may have been opened in the temporary context. In this
     -- context, we must read from a particular location to determine if a chest has been checked:
     -- 0x40002C is written to whenever a remote item is found. There are four relevant bytes:
-    -- [0] should always be 0x00 when a chest is checked
+    -- [0] should always be 0x00 when a non-local multiworld item is checked
     -- [1] is the scene id
-    -- [2] is the location type, which for a chest is 0x01
+    -- [2] is the location type, which for a boss item is 0x00
     -- [3] is the location id within the scene, and represents the bit which was checked
     local check_data = mainmemory.readbyterange(0x40002C,4)
 
