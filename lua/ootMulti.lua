@@ -52,7 +52,26 @@ local chest_check = function(scene_offset, bit_to_check)
 end
 
 local on_the_ground_check = function(scene_offset, bit_to_check)
-    return scene_check(scene_offset, bit_to_check, 0xC)
+    local item_checked_in_save_context = scene_check(scene_offset, bit_to_check, 0xC)
+    if item_checked_in_save_context then return true end
+
+    -- If the item is not present in the save context, it may have been obtained in the temporary context. In this
+    -- context, we must read from a particular location to determine if a chest has been checked:
+    -- 0x40002C is written to whenever a remote item is found. There are four relevant bytes:
+    -- [0] should always be 0x00 when a chest is checked
+    -- [1] is the scene id
+    -- [2] is the location type, which for a chest is 0x01
+    -- [3] is the location id within the scene, and represents the bit which was checked
+    local check_data = mainmemory.readbyterange(0x40002C,4)
+
+    -- If the data in the byte range does not match the chest we are looking for, return false
+    if check_data[0] ~= 0x00 then return false end
+    if check_data[1] ~= scene_offset then return false end
+    if check_data[2] ~= 0x02 then return false end
+    if check_data[3] ~= bit_to_check then return false end
+
+    -- The check matches, and the chest is open in the temporary context
+    return true
 end
 
 -- NOTE: Scrubs are stored in the "unused" block of scene memory
