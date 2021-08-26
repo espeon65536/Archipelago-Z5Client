@@ -156,10 +156,12 @@ const connectToServer = async (address) => {
                   // Notify AP server of game completion
                   if (serverSocket && serverSocket.readyState === WebSocket.OPEN) {
                     gameComplete = true;
-                    serverSocket.send(JSON.stringify({
-                      cmd: 'StatusUpdate',
-                      status: CLIENT_STATUS.CLIENT_GOAL,
-                    }));
+                    serverSocket.send(JSON.stringify([
+                      {
+                        cmd: 'StatusUpdate',
+                        status: CLIENT_STATUS.CLIENT_GOAL,
+                      }
+                    ]));
                   }
                 }
               }
