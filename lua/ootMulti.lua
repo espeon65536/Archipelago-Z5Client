@@ -1,4 +1,4 @@
--- Last modified: 2021-08-27 18:15 EDT
+local script_version = '2021-08-27' -- Should be the last modified date
 
 --------------------------------------------------
 -- Heavily modified form of RiptideSage's tracker
@@ -2052,7 +2052,7 @@ lib.localPlayerNumber = mainmemory.read_u8(player_id_addr)
 ------------------------------------------------------------------------------
 -- Main script execution begins here, and controls the socket connection loop
 ------------------------------------------------------------------------------
-console.log('Initializing OoT interface')
+console.log('Initializing OoT Interface (v' .. script_version .. ')')
 local socket = require("socket.core")
 local connection
 local host = '127.0.0.1'
