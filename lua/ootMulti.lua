@@ -1,4 +1,4 @@
-local script_version = '2021-08-27' -- Should be the last modified date
+local script_version = '2021-09-05' -- Should be the last modified date
 
 --------------------------------------------------
 -- Heavily modified form of RiptideSage's tracker
@@ -2118,6 +2118,9 @@ local runMessageWatcher = coroutine.wrap(function()
             -- If the message is empty, also do nothing
             if not msg then return end
 
+            -- If BizHawk is currently paused, do nothing and let the client request time out
+            if client.ispaused() then return end
+
             -- Handle the message
             -- Message structure: command|arg1|arg2|...
             -- Different commands have different expectations of arguments, described in comments where each
@@ -2219,5 +2222,5 @@ while true do
     if clientConnected then runMessageWatcher() end
 
     -- Advance the emulator by one frame
-    emu.frameadvance()
+    if not client.ispaused() then emu.frameadvance() end
 end

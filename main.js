@@ -236,7 +236,7 @@ net.createServer((socket) => {
     const messageType = messageParts.splice(0,1)[0];
     switch (messageType) {
       case 'requestComplete':
-        uiWindow.webContents.send('requestComplete', messageParts)
+        uiWindow.webContents.send('requestComplete', messageParts);
         break;
 
       default:

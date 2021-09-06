@@ -19,12 +19,13 @@ window and download and install the BizHawk prerequisites, BizHawk itself, and a
 options for you. You will still need to configure your controls upon first launching BizHawk.
 
 ## How to Play:
-1. Receive a `.apz5` file from Archipelgo
-2. Double click the `.apz5` file.
+1. Receive a `.apz5` file from Archipelago.
+2. Double-click the `.apz5` file.
 3. The client will ask you to select a base rom file. This should be the english version of Ocarina of Time.
 4. The client will automatically patch your base rom and place your new rom in the same location as your patch file.
 5. You may need to select a default program to launch N64 roms. If this is any emulator other than the BizHawk 
-downloaded during the installation process, you will need to close it and open the BizHawk 2.3 acquired using the `get-bizhawk.ps1` file.
+downloaded during the installation process, you will need to close it and open the BizHawk 2.3 acquired using the
+`get-bizhawk.ps1` file.
 6. Open the `ootMulti.lua` script in the BizHawk LUA console. If the client is not running, the script will
 terminate and ask you to run the Z5Client before trying to run it again.
 7. Type the server address into the Z5Client "Server" box and press enter.
