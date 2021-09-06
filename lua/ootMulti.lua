@@ -2221,6 +2221,6 @@ while true do
     -- If the client is connected, check if a message bas been received on the socket connection and act on it
     if clientConnected then runMessageWatcher() end
 
-    -- Advance the emulator by one frame
-    if not client.ispaused() then emu.frameadvance() end
+    -- Advance the emulator by one frame, or do nothing if the emulator is paused
+    emu.yield()
 end
