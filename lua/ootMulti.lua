@@ -2218,7 +2218,7 @@ clientConnected = connectToAPClient()
 while true do
     if not clientConnected then break end
 
-    -- If a the client is connected and a message bas been received on the socket connection, act on it
+    -- If the client is connected, check if a message bas been received on the socket connection and act on it
     if clientConnected then runMessageWatcher() end
 
     -- Advance the emulator by one frame
