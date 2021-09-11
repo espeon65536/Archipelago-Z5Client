@@ -1,6 +1,6 @@
 {
   "name": "archipelago-z5client",
-  "version": "0.9.3",
+  "version": "0.10.0",
   "author": "Chris Wilson <chris@legendserver.info>",
   "description": "A Z5 client designed for use with the Archipelago implementation of the Ocarina of Time randomizer.",
   "license": "MIT",

@@ -311,3 +311,8 @@ ipcMain.on('isGameComplete', (event) => {
     socket.write(socketMessage('isGameComplete'));
   });
 });
+ipcMain.on('disconnectAllClients', (event) => {
+  Object.values(socketClients).forEach((socket) => {
+    socket.destroy();
+  });
+});

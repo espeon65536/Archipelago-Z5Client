@@ -1,4 +1,4 @@
-local script_version = '2021-09-06' -- Should be the last modified date
+local script_version = '2021-09-11' -- Should be the last modified date
 
 --------------------------------------------------
 -- Heavily modified form of RiptideSage's tracker
@@ -2095,11 +2095,7 @@ local runMessageWatcher = coroutine.wrap(function()
             -- If the connection has been closed, stop looping and end the coroutine
             if not clientConnected then
                 print('Connection has been closed. Attempting to reconnect.')
-                if not connectToAPClient() then
-                    print('Unable to re-establish connection to AP Client. Please make sure it is running, ' ..
-                            'then restart this script.')
-                    return
-                end
+                return
             end
 
             local msg, status = connection:receive()

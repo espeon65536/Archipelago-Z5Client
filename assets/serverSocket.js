@@ -151,6 +151,9 @@ const connectToServer = async (address) => {
               const romGameComplete = await isGameComplete();
               if (romGameComplete === null) {
                 appendConsoleMessage('Timeout while retrieving the game completion status.');
+                clearInterval(n64Interval);
+                n64IntervalComplete = true;
+                return;
               } else {
                 if (parseInt(romGameComplete[0], 10) === 1) {
                   // Notify AP server of game completion
@@ -171,6 +174,7 @@ const connectToServer = async (address) => {
             let itemReceivable = await isItemReceivable();
             if (itemReceivable === null) {
               appendConsoleMessage('Timeout while retrieving value for isItemReceivable.');
+              clearInterval(n64Interval);
               n64IntervalComplete = true;
               return;
             }
@@ -183,6 +187,7 @@ const connectToServer = async (address) => {
                 let receivedItemCount = await getReceivedItemCount();
                 if (receivedItemCount === null) {
                   appendConsoleMessage('Timeout while retrieving the received item count.');
+                  clearInterval(n64Interval);
                   n64IntervalComplete = true;
                   return;
                 }
@@ -199,6 +204,7 @@ const connectToServer = async (address) => {
             const gameMode = await getCurrentGameMode();
             if (gameMode === null) {
               appendConsoleMessage('Timeout while retrieving current game mode.');
+              clearInterval(n64Interval);
               n64IntervalComplete = true;
               return;
             }
@@ -209,31 +215,35 @@ const connectToServer = async (address) => {
 
             // Get location checks from OoT
             const romLocationsChecked = await getLocationChecks();
-            if (romLocationsChecked !== null) {
-              // Look for new location checks
-              let romLocationIndex = 0;
-              let newLocationChecks = [];
-              while (romLocationIndex < romLocationsChecked.length) {
-                // If the location has been checked
-                if (parseInt(romLocationsChecked[romLocationIndex+1], 10) === 1) {
-                  // If this check is present in missing locations, remove it
-                  if (missingLocations.includes(ootLocationsByName[romLocationsChecked[romLocationIndex]])) {
-                    missingLocations.splice(missingLocations.indexOf(ootLocationsByName[romLocationsChecked[romLocationIndex]]),1);
-                  }
+            if (romLocationsChecked === null) {
+              appendConsoleMessage('Timeout while retrieving checked locations.');
+              clearInterval(n64Interval);
+              n64IntervalComplete = true;
+              return;
+            }
 
-                  // If this check is not present in checked locations, note it as a new check
-                  if (!checkedLocations.includes(ootLocationsByName[romLocationsChecked[romLocationIndex]])) {
-                    newLocationChecks.push(ootLocationsByName[romLocationsChecked[romLocationIndex]]);
-                  }
+            // Look for new location checks
+            let romLocationIndex = 0;
+            let newLocationChecks = [];
+            while (romLocationIndex < romLocationsChecked.length) {
+              // If the location has been checked
+              if (parseInt(romLocationsChecked[romLocationIndex+1], 10) === 1) {
+                // If this check is present in missing locations, remove it
+                if (missingLocations.includes(ootLocationsByName[romLocationsChecked[romLocationIndex]])) {
+                  missingLocations.splice(missingLocations.indexOf(ootLocationsByName[romLocationsChecked[romLocationIndex]]),1);
                 }
-                romLocationIndex += 2;
-              }
 
-              // If there are new location checks, send them to the AP server
-              if (newLocationChecks.length > 0) {
-                await setNames(romPlayerNames);
-                sendLocationChecks(newLocationChecks);
+                // If this check is not present in checked locations, note it as a new check
+                if (!checkedLocations.includes(ootLocationsByName[romLocationsChecked[romLocationIndex]])) {
+                  newLocationChecks.push(ootLocationsByName[romLocationsChecked[romLocationIndex]]);
+                }
               }
+              romLocationIndex += 2;
+            }
+
+            // If there are new location checks, send them to the AP server
+            if (newLocationChecks.length > 0) {
+              sendLocationChecks(newLocationChecks);
             }
 
             // Interval complete, allow a new run

@@ -2,14 +2,36 @@ let currentResolve = null;
 let currentTimeout = null;
 
 window.addEventListener('load', () => {
-  window.oot.requestComplete((...args) => currentResolve(...args));
+  window.oot.requestComplete((...args) => {
+    if (currentResolve) { currentResolve(...args); }
+  });
 });
 
 const setResolve = (resolve) => {
   currentResolve = resolve;
   if(currentTimeout) { clearTimeout(currentTimeout); }
   currentTimeout = setTimeout(() => {
+    window.oot.disconnectAllClients();
+    appendConsoleMessage('A timeout has occurred and the LUA script has been terminated. To continue, you must ' +
+      'restart the LUA script in BizHawk and re-connect to the AP server. This probably happened because you opened ' +
+      'a menu in BizHawk.');
+
+    // Stop querying the n64
+    if (n64Interval) {
+      clearInterval(n64Interval);
+      n64Interval = null;
+      n64Connected = false;
+    }
+
+    // Close the connection to the AP server
+    if (serverSocket && serverSocket.readyState === WebSocket.OPEN) {
+      serverSocket.close();
+    }
+
+    // Report timeout on most recent request and reset tracking data
     if (currentResolve) { currentResolve(null); }
+    currentResolve = null;
+    currentTimeout = null;
   }, 3000);
 };
 

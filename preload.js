@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld('oot', {
   getLocationChecks: () => ipcRenderer.send('getLocationChecks'),
   getCurrentGameMode: () => ipcRenderer.send('getCurrentGameMode'),
   isGameComplete: () => ipcRenderer.send('isGameComplete'),
+  disconnectAllClients: () => ipcRenderer.send('disconnectAllClients'),
 
   // Function listenable by renderer to allow IPCMain to report a completed request
   requestComplete: (callback) => ipcRenderer.on('requestComplete', (event, ...args) => callback(...args)),
