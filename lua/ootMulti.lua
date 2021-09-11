@@ -2092,12 +2092,7 @@ end
 local runMessageWatcher = coroutine.wrap(function()
     while true do
         (function()
-            -- If the connection has been closed, stop looping and end the coroutine
-            if not clientConnected then
-                print('Connection has been closed. Attempting to reconnect.')
-                return
-            end
-
+            -- Retrieve any waiting message
             local msg, status = connection:receive()
 
             -- If the server has closed the connection, do nothing
