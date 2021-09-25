@@ -27,7 +27,7 @@ window.addEventListener('load', () => {
     }
   });
 
-  commandInput.addEventListener('keyup', (event) => {
+  commandInput.addEventListener('keyup', async (event) => {
     // Ignore non-enter keyup events and empty commands
     if (event.key !== 'Enter' || !event.target.value) { return; }
 
@@ -43,10 +43,14 @@ window.addEventListener('load', () => {
           break;
 
         case '/connect':
+          if (!n64Connected) {
+            appendConsoleMessage('An N64 device must be connected before the client can connect to the AP server.');
+            return;
+          }
+
           commandParts.shift();
-          const address = commandParts.join(' ');
-          document.getElementById('server-address').value = address;
-          connectToServer(address);
+          document.getElementById('server-address').value = commandParts[0];
+          await connectToServer(commandParts[0], commandParts[1]);
           break;
 
         case '/launcher':

@@ -38,7 +38,7 @@ window.addEventListener('load', async () => {
   });
 });
 
-const connectToServer = async (address) => {
+const connectToServer = async (address, password=null) => {
   if (serverSocket && serverSocket.readyState === WebSocket.OPEN) {
     serverSocket.close();
     serverSocket = null;
@@ -54,6 +54,9 @@ const connectToServer = async (address) => {
   let serverAddress = address;
   if (serverAddress.search(/^\/connect /) > -1) { serverAddress = serverAddress.substring(9); }
   if (serverAddress.search(/:\d+$/) === -1) { serverAddress = `${serverAddress}:${DEFAULT_SERVER_PORT}`;}
+
+  // Store the last given password
+  serverPassword = password;
 
   // Attempt to connect to the server
   serverSocket = new WebSocket(`ws://${serverAddress}`);
@@ -99,7 +102,7 @@ const connectToServer = async (address) => {
             name: romName[0],
             uuid: getClientId(),
             tags: ['Z5 Client'],
-            password: null, // TODO: Handle password protected lobbies
+            password: serverPassword,
             version: SUPPORTED_ARCHIPELAGO_VERSION,
           };
           serverSocket.send(JSON.stringify([connectionData]));
@@ -138,6 +141,7 @@ const connectToServer = async (address) => {
           players.forEach((player) => {
             romPlayerNames[player.slot] = player.alias;
           });
+          await setNames(romPlayerNames);
 
           n64Interval = setInterval(async () => {
             // Do not run multiple intervals simultaneously
@@ -256,7 +260,14 @@ const connectToServer = async (address) => {
           serverStatus.innerText = 'Not Connected';
           serverStatus.classList.add('disconnected');
           if (serverSocket && serverSocket.readyState === WebSocket.OPEN) {
-            appendConsoleMessage(`Error while connecting to AP server: ${command.errors.join(', ')}.`);
+            if (command.errors.includes('InvalidPassword')) {
+              appendConsoleMessage(serverPassword === null ?
+                'This server requires a password. Please use /connect [server] [password] to connect.' :
+                'Your provided password is incorrect. Please try again.'
+              );
+            } else {
+              appendConsoleMessage(`Error while connecting to AP server: ${command.errors.join(', ')}.`);
+            }
             serverAuthError = true;
             serverSocket.close();
           }

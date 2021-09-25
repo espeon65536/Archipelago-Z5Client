@@ -2,14 +2,14 @@
 const CLIENT_VERSION = {
   state: 'Beta',
   major: 0,
-  minor: 10,
+  minor: 11,
   patch: 0,
 };
 
 const SUPPORTED_ARCHIPELAGO_VERSION = {
   major: 0,
   minor: 1,
-  build: 7,
+  build: 8,
   class: 'Version',
 };
 
@@ -17,6 +17,7 @@ const SUPPORTED_ARCHIPELAGO_VERSION = {
 const DEFAULT_SERVER_PORT = 38281;
 let serverSocket = null;
 let serverAuthError = false;
+let serverPassword = null;
 
 // Local client connection state
 let n64Connected = false;
@@ -31,9 +32,6 @@ let hintCost = null;
 let apItemsById = {};
 let apLocationsById = {};
 let ootLocationsByName = {};
-
-// Data shared between main and renderer processes
-let sharedData = {};
 
 // The user has the option to pause receiving items
 let receiveItems = true;
