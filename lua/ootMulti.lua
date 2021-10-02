@@ -208,10 +208,8 @@ local big_goron_sword_check = function ()
     return bit.check(nearby_memory,bitToCheck)
 end
 
-local is_mq_check = function(mq_table, dungeon_id)
-    is_mq = mainmemory.readbyte(mq_table + dungeon_id)
-    if (is_mq == 1) then return true end
-    return false
+local is_master_quest_dungeon = function(mq_table_address, dungeon_id)
+    return mainmemory.readbyte(mq_table_address + dungeon_id) == 1
 end
 
 local read_kokiri_forest_checks = function()
@@ -276,9 +274,9 @@ local read_sacred_forest_meadow_checks = function()
     return checks
 end
 
-local read_deku_tree_checks = function(mq_table)
+local read_deku_tree_checks = function(mq_table_address)
     local checks = {}
-    if not is_mq_check(mq_table, 0x0) then
+    if not is_master_quest_dungeon(mq_table_address, 0x0) then
         checks["Deku Tree Map Chest"] = chest_check(0x00, 0x3)
         checks["Deku Tree Slingshot Room Side Chest"] = chest_check(0x00, 0x5)
         checks["Deku Tree Slingshot Chest"] = chest_check(0x00, 0x1)
@@ -311,9 +309,9 @@ local read_deku_tree_checks = function(mq_table)
     return checks
 end
 
-local read_forest_temple_checks = function(mq_table)
+local read_forest_temple_checks = function(mq_table_address)
     local checks = {}
-    if not is_mq_check(mq_table, 0x3) then
+    if not is_master_quest_dungeon(mq_table_address, 0x3) then
         checks["Forest Temple First Room Chest"] = chest_check(0x3, 0x3)
         checks["Forest Temple First Stalfos Chest"] = chest_check(0x3, 0x0)
         checks["Forest Temple Raised Island Courtyard Chest"] = chest_check(0x3, 0x5)
@@ -494,9 +492,9 @@ local read_graveyard_checks = function()
     return checks
 end
 
-local read_bottom_of_the_well_checks = function(mq_table)
+local read_bottom_of_the_well_checks = function(mq_table_address)
     local checks = {}
-    if not is_mq_check(mq_table, 0x8) then
+    if not is_master_quest_dungeon(mq_table_address, 0x8) then
         checks["Bottom of the Well Front Left Fake Wall Chest"] = chest_check(0x08, 0x08)
         checks["Bottom of the Well Front Center Bombable Chest"] = chest_check(0x08, 0x02)
         checks["Bottom of the Well Back Left Bombable Chest"] = chest_check(0x08, 0x04)
@@ -530,9 +528,9 @@ local read_bottom_of_the_well_checks = function(mq_table)
     return checks
 end
 
-local read_shadow_temple_checks = function(mq_table)
+local read_shadow_temple_checks = function(mq_table_address)
     local checks = {}
-    if not is_mq_check(mq_table, 0x7) then
+    if not is_master_quest_dungeon(mq_table_address, 0x7) then
         checks["Shadow Temple Map Chest"] = chest_check(0x07, 0x01)
         checks["Shadow Temple Hover Boots Chest"] = chest_check(0x07, 0x07)
         checks["Shadow Temple Compass Chest"] = chest_check(0x07, 0x03)
@@ -645,9 +643,9 @@ local read_death_mountain_crater_checks = function()
     return checks
 end
 
-local read_dodongos_cavern_checks = function(mq_table)
+local read_dodongos_cavern_checks = function(mq_table_address)
     local checks = {}
-    if not is_mq_check(mq_table, 0x1) then
+    if not is_master_quest_dungeon(mq_table_address, 0x1) then
         checks["Dodongos Cavern Map Chest"] = chest_check(0x01, 0x8)
         checks["Dodongos Cavern Compass Chest"] = chest_check(0x01, 0x5)
         checks["Dodongos Cavern Bomb Flower Platform Chest"] = chest_check(0x01, 0x6)
@@ -690,9 +688,9 @@ local read_dodongos_cavern_checks = function(mq_table)
     return checks
 end
 
-local read_fire_temple_checks = function(mq_table)
+local read_fire_temple_checks = function(mq_table_address)
     local checks = {}
-    if not is_mq_check(mq_table, 0x4) then
+    if not is_master_quest_dungeon(mq_table_address, 0x4) then
         checks["Fire Temple Near Boss Chest"] = chest_check(0x04, 0x01)
         checks["Fire Temple Flare Dancer Chest"] = chest_check(0x04, 0x00)
         checks["Fire Temple Boss Key Chest"] = chest_check(0x04, 0x0C)
@@ -782,9 +780,9 @@ local read_zoras_fountain_checks = function()
     return checks
 end
 
-local read_jabu_checks = function(mq_table)
+local read_jabu_checks = function(mq_table_address)
     local checks = {}
-    if not is_mq_check(mq_table, 0x2) then
+    if not is_master_quest_dungeon(mq_table_address, 0x2) then
         checks["Jabu Jabus Belly Boomerang Chest"] = chest_check(0x02, 0x01)
         checks["Jabu Jabus Belly Map Chest"] = chest_check(0x02, 0x02)
         checks["Jabu Jabus Belly Compass Chest"] = chest_check(0x02, 0x04)
@@ -818,9 +816,9 @@ local read_jabu_checks = function(mq_table)
     return checks
 end
 
-local read_ice_cavern_checks = function(mq_table)
+local read_ice_cavern_checks = function(mq_table_address)
     local checks = {}
-    if not is_mq_check(mq_table, 0x9) then
+    if not is_master_quest_dungeon(mq_table_address, 0x9) then
         checks["Ice Cavern Map Chest"] = chest_check(0x09, 0x00)
         checks["Ice Cavern Compass Chest"] = chest_check(0x09, 0x01)
         checks["Ice Cavern Freestanding PoH"] = on_the_ground_check(0x09, 0x01)
@@ -862,9 +860,9 @@ local read_lake_hylia_checks = function()
     return checks
 end
 
-local read_water_temple_checks = function(mq_table)
+local read_water_temple_checks = function(mq_table_address)
     local checks = {}
-    if not is_mq_check(mq_table, 0x5) then
+    if not is_master_quest_dungeon(mq_table_address, 0x5) then
         checks["Water Temple Compass Chest"] = chest_check(0x05, 0x09)
         checks["Water Temple Map Chest"] = chest_check(0x05, 0x02)
         checks["Water Temple Cracked Wall Chest"] = chest_check(0x05, 0x00)
@@ -931,9 +929,9 @@ local read_gerudo_fortress_checks = function()
     return checks
 end
 
-local read_gerudo_training_ground_checks = function(mq_table)
+local read_gerudo_training_ground_checks = function(mq_table_address)
     local checks = {}
-    if not is_mq_check(mq_table, 0xB) then
+    if not is_master_quest_dungeon(mq_table_address, 0xB) then
         checks["Gerudo Training Grounds Lobby Left Chest"] = chest_check(0x0B, 0x13)
         checks["Gerudo Training Grounds Lobby Right Chest"] = chest_check(0x0B, 0x07)
         checks["Gerudo Training Grounds Stalfos Chest"] = chest_check(0x0B, 0x00)
@@ -999,9 +997,9 @@ local read_desert_colossus_checks = function()
     return checks
 end
 
-local read_spirit_temple_checks = function(mq_table)
+local read_spirit_temple_checks = function(mq_table_address)
     local checks = {}
-    if not is_mq_check(mq_table, 0x6) then
+    if not is_master_quest_dungeon(mq_table_address, 0x6) then
         checks["Spirit Temple Child Bridge Chest"] = chest_check(0x06, 0x08)
         checks["Spirit Temple Child Early Torches Chest"] = chest_check(0x06, 0x00)
         checks["Spirit Temple Child Climb North Chest"] = chest_check(0x06, 0x06)
@@ -1065,9 +1063,9 @@ local read_spirit_temple_checks = function(mq_table)
     return checks
 end
 
-local read_ganons_castle_checks = function(mq_table)
+local read_ganons_castle_checks = function(mq_table_address)
     local checks = {}
-    if not is_mq_check(mq_table, 0xD) then
+    if not is_master_quest_dungeon(mq_table_address, 0xD) then
         checks["Ganons Castle Forest Trial Chest"] = chest_check(0x0D, 0x09)
         checks["Ganons Castle Water Trial Left Chest"] = chest_check(0x0D, 0x07)
         checks["Ganons Castle Water Trial Right Chest"] = chest_check(0x0D, 0x06)
@@ -1155,40 +1153,41 @@ local read_dungeon_reward_checks = function()
     return checks
 end
 
-scanner.check_all_locations = function(mq_table)
+scanner.check_all_locations = function(mq_table_address)
+-- TODO
     local location_checks = {}
     for k,v in pairs(read_kokiri_forest_checks()) do location_checks[k] = v end
     for k,v in pairs(read_lost_woods_checks()) do location_checks[k] = v end
     for k,v in pairs(read_sacred_forest_meadow_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_deku_tree_checks(mq_table)) do location_checks[k] = v end
-    for k,v in pairs(read_forest_temple_checks(mq_table)) do location_checks[k] = v end
+    for k,v in pairs(read_deku_tree_checks(mq_table_address)) do location_checks[k] = v end
+    for k,v in pairs(read_forest_temple_checks(mq_table_address)) do location_checks[k] = v end
     for k,v in pairs(read_hyrule_field_checks()) do location_checks[k] = v end
     for k,v in pairs(read_lon_lon_ranch_checks()) do location_checks[k] = v end
     for k,v in pairs(read_market_checks()) do location_checks[k] = v end
     for k,v in pairs(read_hyrule_castle_checks()) do location_checks[k] = v end
     for k,v in pairs(read_kakariko_village_checks()) do location_checks[k] = v end
     for k,v in pairs(read_graveyard_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_bottom_of_the_well_checks(mq_table)) do location_checks[k] = v end
-    for k,v in pairs(read_shadow_temple_checks(mq_table)) do location_checks[k] = v end
+    for k,v in pairs(read_bottom_of_the_well_checks(mq_table_address)) do location_checks[k] = v end
+    for k,v in pairs(read_shadow_temple_checks(mq_table_address)) do location_checks[k] = v end
     for k,v in pairs(read_death_mountain_trail_checks()) do location_checks[k] = v end
     for k,v in pairs(read_goron_city_checks()) do location_checks[k] = v end
     for k,v in pairs(read_death_mountain_crater_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_dodongos_cavern_checks(mq_table)) do location_checks[k] = v end
-    for k,v in pairs(read_fire_temple_checks(mq_table)) do location_checks[k] = v end
+    for k,v in pairs(read_dodongos_cavern_checks(mq_table_address)) do location_checks[k] = v end
+    for k,v in pairs(read_fire_temple_checks(mq_table_address)) do location_checks[k] = v end
     for k,v in pairs(read_zoras_river_checks()) do location_checks[k] = v end
     for k,v in pairs(read_zoras_domain_checks()) do location_checks[k] = v end
     for k,v in pairs(read_zoras_fountain_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_jabu_checks(mq_table)) do location_checks[k] = v end
-    for k,v in pairs(read_ice_cavern_checks(mq_table)) do location_checks[k] = v end
+    for k,v in pairs(read_jabu_checks(mq_table_address)) do location_checks[k] = v end
+    for k,v in pairs(read_ice_cavern_checks(mq_table_address)) do location_checks[k] = v end
     for k,v in pairs(read_lake_hylia_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_water_temple_checks(mq_table)) do location_checks[k] = v end
+    for k,v in pairs(read_water_temple_checks(mq_table_address)) do location_checks[k] = v end
     for k,v in pairs(read_gerudo_valley_checks()) do location_checks[k] = v end
     for k,v in pairs(read_gerudo_fortress_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_gerudo_training_ground_checks(mq_table)) do location_checks[k] = v end
+    for k,v in pairs(read_gerudo_training_ground_checks(mq_table_address)) do location_checks[k] = v end
     for k,v in pairs(read_haunted_wasteland_checks()) do location_checks[k] = v end
     for k,v in pairs(read_desert_colossus_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_spirit_temple_checks(mq_table)) do location_checks[k] = v end
-    for k,v in pairs(read_ganons_castle_checks(mq_table)) do location_checks[k] = v end
+    for k,v in pairs(read_spirit_temple_checks(mq_table_address)) do location_checks[k] = v end
+    for k,v in pairs(read_ganons_castle_checks(mq_table_address)) do location_checks[k] = v end
     for k,v in pairs(read_outside_ganons_castle_checks()) do location_checks[k] = v end
     for k,v in pairs(read_song_checks()) do location_checks[k] = v end
     return location_checks
@@ -2186,7 +2185,9 @@ local player_names_address  = coop_context + 20
 local player_name_length    = 8 -- 8 bytes
 local rom_name_location     = player_names_address + 0x800
 
-local dungeon_is_mq_address = rando_context + 0xB1E8
+-- Each dungeon can independently be given a master quest layout. This table contains a list of 0s and 1s
+-- which represent the dungeons' layout. 0 for normal, 1 for master quest
+local master_quest_table_address = rando_context + 0xB1E8
 
 local save_context = 0x11A5D0
 local internal_count_addr = save_context + 0x90
@@ -2295,7 +2296,7 @@ lib.isGameComplete = function()
 end
 
 lib.getLocationChecks = function()
-    return scanner.check_all_locations(dungeon_is_mq_address)
+    return scanner.check_all_locations(master_quest_table_address)
 end
 
 lib.localPlayerNumber = mainmemory.read_u8(player_id_addr)
