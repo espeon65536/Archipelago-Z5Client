@@ -208,6 +208,12 @@ local big_goron_sword_check = function ()
     return bit.check(nearby_memory,bitToCheck)
 end
 
+local is_mq_check = function(mq_table, dungeon_id)
+    is_mq = mainmemory.readbyte(mq_table + dungeon_id)
+    if (is_mq == 1) then return true end
+    return false
+end
+
 local read_kokiri_forest_checks = function()
     local checks = {}
     checks["KF Midos Top Left Chest"] = chest_check(0x28, 0x00)
@@ -270,45 +276,83 @@ local read_sacred_forest_meadow_checks = function()
     return checks
 end
 
-local read_deku_tree_checks = function()
+local read_deku_tree_checks = function(mq_table)
     local checks = {}
-    checks["Deku Tree Map Chest"] = chest_check(0x00, 0x3)
-    checks["Deku Tree Slingshot Room Side Chest"] = chest_check(0x00, 0x5)
-    checks["Deku Tree Slingshot Chest"] = chest_check(0x00, 0x1)
-    checks["Deku Tree Compass Chest"] = chest_check(0x00, 0x2)
-    checks["Deku Tree Compass Room Side Chest"] = chest_check(0x00, 0x6)
-    checks["Deku Tree Basement Chest"] = chest_check(0x00, 0x4)
+    if not is_mq_check(mq_table, 0x0) then
+        checks["Deku Tree Map Chest"] = chest_check(0x00, 0x3)
+        checks["Deku Tree Slingshot Room Side Chest"] = chest_check(0x00, 0x5)
+        checks["Deku Tree Slingshot Chest"] = chest_check(0x00, 0x1)
+        checks["Deku Tree Compass Chest"] = chest_check(0x00, 0x2)
+        checks["Deku Tree Compass Room Side Chest"] = chest_check(0x00, 0x6)
+        checks["Deku Tree Basement Chest"] = chest_check(0x00, 0x4)
 
-    checks["Deku Tree GS Compass Room"] = skulltula_check(0x0, 0x3)
-    checks["Deku Tree GS Basement Vines"] = skulltula_check(0x0, 0x2)
-    checks["Deku Tree GS Basement Gate"] = skulltula_check(0x0, 0x1)
-    checks["Deku Tree GS Basement Back Room"] = skulltula_check(0x0, 0x0)
+        checks["Deku Tree GS Compass Room"] = skulltula_check(0x0, 0x3)
+        checks["Deku Tree GS Basement Vines"] = skulltula_check(0x0, 0x2)
+        checks["Deku Tree GS Basement Gate"] = skulltula_check(0x0, 0x1)
+        checks["Deku Tree GS Basement Back Room"] = skulltula_check(0x0, 0x0)
+    else
+        checks["Deku Tree MQ Map Chest"] = chest_check(0x00, 0x3)
+        checks["Deku Tree MQ Slingshot Chest"] = chest_check(0x00, 0x6)
+        checks["Deku Tree MQ Slingshot Room Back Chest"] = chest_check(0x00, 0x2)
+        checks["Deku Tree MQ Compass Chest"] = chest_check(0x00, 0x1)
+        checks["Deku Tree MQ Basement Chest"] = chest_check(0x00, 0x4)
+        checks["Deku Tree MQ Before Spinning Log Chest"] = chest_check(0x00, 0x5)
+        checks["Deku Tree MQ After Spinning Log Chest"] = chest_check(0x00, 0x0)
+
+        checks["Deku Tree MQ Deku Scrub"] = scrub_sanity_check(0x00, 0x5)
+
+        checks["Deku Tree MQ GS Lobby"] = skulltula_check(0x0, 0x1)
+        checks["Deku Tree MQ GS Compass Room"] = skulltula_check(0x0, 0x3)
+        checks["Deku Tree MQ GS Basement Graves Room"] = skulltula_check(0x0, 0x2)
+        checks["Deku Tree MQ GS Basement Back Room"] = skulltula_check(0x0, 0x0)
+    end
 
     checks["Deku Tree Queen Gohma Heart"] = boss_item_check(0x11)
     return checks
 end
 
-local read_forest_temple_checks = function()
+local read_forest_temple_checks = function(mq_table)
     local checks = {}
-    checks["Forest Temple First Room Chest"] = chest_check(0x3, 0x3)
-    checks["Forest Temple First Stalfos Chest"] = chest_check(0x3, 0x0)
-    checks["Forest Temple Raised Island Courtyard Chest"] = chest_check(0x3, 0x5)
-    checks["Forest Temple Map Chest"] = chest_check(0x3, 0x1)
-    checks["Forest Temple Well Chest"] = chest_check(0x3, 0x9)
-    checks["Forest Temple Eye Switch Chest"] = chest_check(0x3, 0x4)
-    checks["Forest Temple Boss Key Chest"] = chest_check(0x3, 0xE)
-    checks["Forest Temple Floormaster Chest"] = chest_check(0x3, 0x2)
-    checks["Forest Temple Red Poe Chest"] = chest_check(0x3, 0xD)
-    checks["Forest Temple Bow Chest"] = chest_check(0x3, 0xC)
-    checks["Forest Temple Blue Poe Chest"] = chest_check(0x3, 0xF)
-    checks["Forest Temple Falling Ceiling Room Chest"] = chest_check(0x3, 0x7)
-    checks["Forest Temple Basement Chest"] = chest_check(0x3, 0xB)
+    if not is_mq_check(mq_table, 0x3) then
+        checks["Forest Temple First Room Chest"] = chest_check(0x3, 0x3)
+        checks["Forest Temple First Stalfos Chest"] = chest_check(0x3, 0x0)
+        checks["Forest Temple Raised Island Courtyard Chest"] = chest_check(0x3, 0x5)
+        checks["Forest Temple Map Chest"] = chest_check(0x3, 0x1)
+        checks["Forest Temple Well Chest"] = chest_check(0x3, 0x9)
+        checks["Forest Temple Eye Switch Chest"] = chest_check(0x3, 0x4)
+        checks["Forest Temple Boss Key Chest"] = chest_check(0x3, 0xE)
+        checks["Forest Temple Floormaster Chest"] = chest_check(0x3, 0x2)
+        checks["Forest Temple Red Poe Chest"] = chest_check(0x3, 0xD)
+        checks["Forest Temple Bow Chest"] = chest_check(0x3, 0xC)
+        checks["Forest Temple Blue Poe Chest"] = chest_check(0x3, 0xF)
+        checks["Forest Temple Falling Ceiling Room Chest"] = chest_check(0x3, 0x7)
+        checks["Forest Temple Basement Chest"] = chest_check(0x3, 0xB)
 
-    checks["Forest Temple GS First Room"] = skulltula_check(0x03, 0x1)
-    checks["Forest Temple GS Lobby"] = skulltula_check(0x03, 0x3)
-    checks["Forest Temple GS Raised Island Courtyard"] = skulltula_check(0x03, 0x0)
-    checks["Forest Temple GS Level Island Courtyard"] = skulltula_check(0x03, 0x2)
-    checks["Forest Temple GS Basement"] = skulltula_check(0x03, 0x4)
+        checks["Forest Temple GS First Room"] = skulltula_check(0x03, 0x1)
+        checks["Forest Temple GS Lobby"] = skulltula_check(0x03, 0x3)
+        checks["Forest Temple GS Raised Island Courtyard"] = skulltula_check(0x03, 0x0)
+        checks["Forest Temple GS Level Island Courtyard"] = skulltula_check(0x03, 0x2)
+        checks["Forest Temple GS Basement"] = skulltula_check(0x03, 0x4)
+    else
+        checks["Forest Temple MQ First Room Chest"] = chest_check(0x3, 0x3)
+        checks["Forest Temple MQ Wolfos Chest"] = chest_check(0x3, 0x0)
+        checks["Forest Temple MQ Well Chest"] = chest_check(0x3, 0x9)
+        checks["Forest Temple MQ Raised Island Courtyard Lower Chest"] = chest_check(0x3, 0x1)
+        checks["Forest Temple MQ Raised Island Courtyard Upper Chest"] = chest_check(0x3, 0x5)
+        checks["Forest Temple MQ Boss Key Chest"] = chest_check(0x3, 0xE)
+        checks["Forest Temple MQ Redead Chest"] = chest_check(0x3, 0x2)
+        checks["Forest Temple MQ Map Chest"] = chest_check(0x3, 0xD)
+        checks["Forest Temple MQ Bow Chest"] = chest_check(0x3, 0xC)
+        checks["Forest Temple MQ Compass Chest"] = chest_check(0x3, 0xF)
+        checks["Forest Temple MQ Falling Ceiling Room Chest"] = chest_check(0x3, 0x6)
+        checks["Forest Temple MQ Basement Chest"] = chest_check(0x3, 0xB)
+
+        checks["Forest Temple MQ GS First Hallway"] = skulltula_check(0x3, 0x1)
+        checks["Forest Temple MQ GS Raised Island Courtyard"] = skulltula_check(0x3, 0x0)
+        checks["Forest Temple MQ GS Level Island Courtyard"] = skulltula_check(0x3, 0x2)
+        checks["Forest Temple MQ GS Well"] = skulltula_check(0x3, 0x3)
+        checks["Forest Temple MQ GS Block Push Room"] = skulltula_check(0x3, 0x4)
+    end
 
     checks["Forest Temple Phantom Ganon Heart"] = boss_item_check(0x14)
     return checks
@@ -450,54 +494,96 @@ local read_graveyard_checks = function()
     return checks
 end
 
-local read_bottom_of_the_well_checks = function()
+local read_bottom_of_the_well_checks = function(mq_table)
     local checks = {}
-    checks["Bottom of the Well Front Left Fake Wall Chest"] = chest_check(0x08, 0x08)
-    checks["Bottom of the Well Front Center Bombable Chest"] = chest_check(0x08, 0x02)
-    checks["Bottom of the Well Back Left Bombable Chest"] = chest_check(0x08, 0x04)
-    checks["Bottom of the Well Underwater Left Chest"] = chest_check(0x08, 0x09)
-    checks["Bottom of the Well Freestanding Key"] = on_the_ground_check(0x08, 0x01)
-    checks["Bottom of the Well Compass Chest"] = chest_check(0x08, 0x01)
-    checks["Bottom of the Well Center Skulltula Chest"] = chest_check(0x08, 0x0E)
-    checks["Bottom of the Well Right Bottom Fake Wall Chest"] = chest_check(0x08, 0x05)
-    checks["Bottom of the Well Fire Keese Chest"] = chest_check(0x08, 0x0A)
-    checks["Bottom of the Well Like Like Chest"] = chest_check(0x08, 0x0C)
-    checks["Bottom of the Well Map Chest"] = chest_check(0x08, 0x07)
-    checks["Bottom of the Well Underwater Front Chest"] = chest_check(0x08, 0x10)
-    checks["Bottom of the Well Invisible Chest"] = chest_check(0x08, 0x14)
-    checks["Bottom of the Well Lens of Truth Chest"] = chest_check(0x08, 0x03)
+    if not is_mq_check(mq_table, 0x8) then
+        checks["Bottom of the Well Front Left Fake Wall Chest"] = chest_check(0x08, 0x08)
+        checks["Bottom of the Well Front Center Bombable Chest"] = chest_check(0x08, 0x02)
+        checks["Bottom of the Well Back Left Bombable Chest"] = chest_check(0x08, 0x04)
+        checks["Bottom of the Well Underwater Left Chest"] = chest_check(0x08, 0x09)
+        checks["Bottom of the Well Freestanding Key"] = on_the_ground_check(0x08, 0x01)
+        checks["Bottom of the Well Compass Chest"] = chest_check(0x08, 0x01)
+        checks["Bottom of the Well Center Skulltula Chest"] = chest_check(0x08, 0x0E)
+        checks["Bottom of the Well Right Bottom Fake Wall Chest"] = chest_check(0x08, 0x05)
+        checks["Bottom of the Well Fire Keese Chest"] = chest_check(0x08, 0x0A)
+        checks["Bottom of the Well Like Like Chest"] = chest_check(0x08, 0x0C)
+        checks["Bottom of the Well Map Chest"] = chest_check(0x08, 0x07)
+        checks["Bottom of the Well Underwater Front Chest"] = chest_check(0x08, 0x10)
+        checks["Bottom of the Well Invisible Chest"] = chest_check(0x08, 0x14)
+        checks["Bottom of the Well Lens of Truth Chest"] = chest_check(0x08, 0x03)
 
-    checks["Bottom of the Well GS West Inner Room"] = skulltula_check(0x08, 0x2)
-    checks["Bottom of the Well GS East Inner Room"] = skulltula_check(0x08, 0x1)
-    checks["Bottom of the Well GS Like Like Cage"] = skulltula_check(0x08, 0x0)
+        checks["Bottom of the Well GS West Inner Room"] = skulltula_check(0x08, 0x2)
+        checks["Bottom of the Well GS East Inner Room"] = skulltula_check(0x08, 0x1)
+        checks["Bottom of the Well GS Like Like Cage"] = skulltula_check(0x08, 0x0)
+    else
+        checks["Bottom of the Well MQ Map Chest"] = chest_check(0x8, 0x3)
+        checks["Bottom of the Well MQ East Inner Room Freestanding Key"] = on_the_ground_check(0x8, 0x1)
+        checks["Bottom of the Well MQ Compass Chest"] = chest_check(0x8, 0x2)
+        checks["Bottom of the Well MQ Dead Hand Freestanding Key"] = on_the_ground_check(0x8, 0x2)
+        checks["Bottom of the Well MQ Lens of Truth Chest"] = chest_check(0x8, 0x1)
+
+        checks["Bottom of the Well MQ GS Coffin Room"] = skulltula_check(0x08, 0x2)
+        checks["Bottom of the Well MQ GS West Inner Room"] = skulltula_check(0x08, 0x1)
+        checks["Bottom of the Well MQ GS Basement"] = skulltula_check(0x08, 0x0)
+    end
+
     return checks
 end
 
-local read_shadow_temple_checks = function()
+local read_shadow_temple_checks = function(mq_table)
     local checks = {}
-    checks["Shadow Temple Map Chest"] = chest_check(0x07, 0x01)
-    checks["Shadow Temple Hover Boots Chest"] = chest_check(0x07, 0x07)
-    checks["Shadow Temple Compass Chest"] = chest_check(0x07, 0x03)
-    checks["Shadow Temple Early Silver Rupee Chest"] = chest_check(0x07, 0x02)
-    checks["Shadow Temple Invisible Blades Visible Chest"] = chest_check(0x07, 0x0C)
-    checks["Shadow Temple Invisible Blades Invisible Chest"] = chest_check(0x07, 0x16)
-    checks["Shadow Temple Falling Spikes Lower Chest"] = chest_check(0x07, 0x05)
-    checks["Shadow Temple Falling Spikes Upper Chest"] = chest_check(0x07, 0x06)
-    checks["Shadow Temple Falling Spikes Switch Chest"] = chest_check(0x07, 0x04)
-    checks["Shadow Temple Invisible Spikes Chest"] = chest_check(0x07, 0x09)
-    checks["Shadow Temple Freestanding Key"] = on_the_ground_check(0x07, 0x01)
-    checks["Shadow Temple Wind Hint Chest"] = chest_check(0x07, 0x15)
-    checks["Shadow Temple After Wind Enemy Chest"] = chest_check(0x07, 0x08)
-    checks["Shadow Temple After Wind Hidden Chest"] = chest_check(0x07, 0x14)
-    checks["Shadow Temple Spike Walls Left Chest"] = chest_check(0x07, 0x0A)
-    checks["Shadow Temple Boss Key Chest"] = chest_check(0x07, 0x0B)
-    checks["Shadow Temple Invisible Floormaster Chest"] = chest_check(0x07, 0x0D)
+    if not is_mq_check(mq_table, 0x7) then
+        checks["Shadow Temple Map Chest"] = chest_check(0x07, 0x01)
+        checks["Shadow Temple Hover Boots Chest"] = chest_check(0x07, 0x07)
+        checks["Shadow Temple Compass Chest"] = chest_check(0x07, 0x03)
+        checks["Shadow Temple Early Silver Rupee Chest"] = chest_check(0x07, 0x02)
+        checks["Shadow Temple Invisible Blades Visible Chest"] = chest_check(0x07, 0x0C)
+        checks["Shadow Temple Invisible Blades Invisible Chest"] = chest_check(0x07, 0x16)
+        checks["Shadow Temple Falling Spikes Lower Chest"] = chest_check(0x07, 0x05)
+        checks["Shadow Temple Falling Spikes Upper Chest"] = chest_check(0x07, 0x06)
+        checks["Shadow Temple Falling Spikes Switch Chest"] = chest_check(0x07, 0x04)
+        checks["Shadow Temple Invisible Spikes Chest"] = chest_check(0x07, 0x09)
+        checks["Shadow Temple Freestanding Key"] = on_the_ground_check(0x07, 0x01)
+        checks["Shadow Temple Wind Hint Chest"] = chest_check(0x07, 0x15)
+        checks["Shadow Temple After Wind Enemy Chest"] = chest_check(0x07, 0x08)
+        checks["Shadow Temple After Wind Hidden Chest"] = chest_check(0x07, 0x14)
+        checks["Shadow Temple Spike Walls Left Chest"] = chest_check(0x07, 0x0A)
+        checks["Shadow Temple Boss Key Chest"] = chest_check(0x07, 0x0B)
+        checks["Shadow Temple Invisible Floormaster Chest"] = chest_check(0x07, 0x0D)
 
-    checks["Shadow Temple GS Like Like Room"] = skulltula_check(0x07, 0x3)
-    checks["Shadow Temple GS Falling Spikes Room"] = skulltula_check(0x07, 0x1)
-    checks["Shadow Temple GS Single Giant Pot"] = skulltula_check(0x07, 0x0)
-    checks["Shadow Temple GS Near Ship"] = skulltula_check(0x07, 0x4)
-    checks["Shadow Temple GS Triple Giant Pot"] = skulltula_check(0x07, 0x2)
+        checks["Shadow Temple GS Like Like Room"] = skulltula_check(0x07, 0x3)
+        checks["Shadow Temple GS Falling Spikes Room"] = skulltula_check(0x07, 0x1)
+        checks["Shadow Temple GS Single Giant Pot"] = skulltula_check(0x07, 0x0)
+        checks["Shadow Temple GS Near Ship"] = skulltula_check(0x07, 0x4)
+        checks["Shadow Temple GS Triple Giant Pot"] = skulltula_check(0x07, 0x2)
+    else
+        checks["Shadow Temple MQ Early Gibdos Chest"] = chest_check(0x7, 0x3)
+        checks["Shadow Temple MQ Map Chest"] = chest_check(0x7, 0x2)
+        checks["Shadow Temple MQ Near Ship Invisible Chest"] = chest_check(0x7, 0xE)
+        checks["Shadow Temple MQ Compass Chest"] = chest_check(0x7, 0x1)
+        checks["Shadow Temple MQ Hover Boots Chest"] = chest_check(0x7, 0x7)
+        checks["Shadow Temple MQ Invisible Blades Invisible Chest"] = chest_check(0x7, 0x16)
+        checks["Shadow Temple MQ Invisible Blades Visible Chest"] = chest_check(0x7, 0xC)
+        checks["Shadow Temple MQ Beamos Silver Rupees Chest"] = chest_check(0x7, 0xF)
+        checks["Shadow Temple MQ Falling Spikes Lower Chest"] = chest_check(0x7, 0x5)
+        checks["Shadow Temple MQ Falling Spikes Upper Chest"] = chest_check(0x7, 0x6)
+        checks["Shadow Temple MQ Falling Spikes Switch Chest"] = chest_check(0x7, 0x4)
+        checks["Shadow Temple MQ Invisible Spikes Chest"] = chest_check(0x7, 0x9)
+        checks["Shadow Temple MQ Stalfos Room Chest"] = chest_check(0x7, 0x10)
+        checks["Shadow Temple MQ Wind Hint Chest"] = chest_check(0x7, 0x15)
+        checks["Shadow Temple MQ After Wind Hidden Chest"] = chest_check(0x7, 0x14)
+        checks["Shadow Temple MQ After Wind Enemy Chest"] = chest_check(0x7, 0x8)
+        checks["Shadow Temple MQ Boss Key Chest"] = chest_check(0x7, 0xB)
+        checks["Shadow Temple MQ Spike Walls Left Chest"] = chest_check(0x7, 0xA)
+        checks["Shadow Temple MQ Freestanding Key"] = on_the_ground_check(0x7, 0x6)
+        checks["Shadow Temple MQ Bomb Flower Chest"] = on_the_ground_check(0x7, 0xD)
+
+        checks["Shadow Temple MQ GS Falling Spikes Room"] = skulltula_check(0x7, 0x1)
+        checks["Shadow Temple MQ GS Wind Hint Room"] = skulltula_check(0x7, 0x0)
+        checks["Shadow Temple MQ GS After Wind"] = skulltula_check(0x7, 0x3)
+        checks["Shadow Temple MQ GS After Ship"] = skulltula_check(0x7, 0x4)
+        checks["Shadow Temple MQ GS Near Boss"] = skulltula_check(0x7, 0x2)
+    end
 
     checks["Shadow Temple Bongo Bongo Heart"] = boss_item_check(0x18)
     return checks
@@ -559,52 +645,94 @@ local read_death_mountain_crater_checks = function()
     return checks
 end
 
-local read_dodongos_cavern_checks = function()
+local read_dodongos_cavern_checks = function(mq_table)
     local checks = {}
-    checks["Dodongos Cavern Map Chest"] = chest_check(0x01, 0x8)
-    checks["Dodongos Cavern Compass Chest"] = chest_check(0x01, 0x5)
-    checks["Dodongos Cavern Bomb Flower Platform Chest"] = chest_check(0x01, 0x6)
-    checks["Dodongos Cavern Bomb Bag Chest"] = chest_check(0x01, 0x4)
-    checks["Dodongos Cavern End of Bridge Chest"] = chest_check(0x01, 0xA)
+    if not is_mq_check(mq_table, 0x1) then
+        checks["Dodongos Cavern Map Chest"] = chest_check(0x01, 0x8)
+        checks["Dodongos Cavern Compass Chest"] = chest_check(0x01, 0x5)
+        checks["Dodongos Cavern Bomb Flower Platform Chest"] = chest_check(0x01, 0x6)
+        checks["Dodongos Cavern Bomb Bag Chest"] = chest_check(0x01, 0x4)
+        checks["Dodongos Cavern End of Bridge Chest"] = chest_check(0x01, 0xA)
+
+        checks["Dodongos Cavern Deku Scrub Lobby"] = scrub_sanity_check(0x1, 0x5)
+        checks["Dodongos Cavern Deku Scrub Side Room Near Dodongos"] = scrub_sanity_check(0x1, 0x2)
+        checks["Dodongos Cavern Deku Scrub Near Bomb Bag Left"] = scrub_sanity_check(0x1, 0x1)
+        checks["Dodongos Cavern Deku Scrub Near Bomb Bag Right"] = scrub_sanity_check(0x1, 0x4)
+
+        checks["Dodongos Cavern GS Side Room Near Lower Lizalfos"] = skulltula_check(0x01, 0x4)
+        checks["Dodongos Cavern GS Scarecrow"] = skulltula_check(0x01, 0x1)
+        checks["Dodongos Cavern GS Alcove Above Stairs"] = skulltula_check(0x01, 0x2)
+        checks["Dodongos Cavern GS Vines Above Stairs"] = skulltula_check(0x01, 0x0)
+        checks["Dodongos Cavern GS Back Room"] = skulltula_check(0x01, 0x3)
+    else
+        checks["Dodongos Cavern MQ Map Chest"] = chest_check(0x1, 0x0)
+        checks["Dodongos Cavern MQ Bomb Bag Chest"] = chest_check(0x1, 0x4)
+        checks["Dodongos Cavern MQ Torch Puzzle Room Chest"] = chest_check(0x1, 0x3)
+        checks["Dodongos Cavern MQ Larvae Room Chest"] = chest_check(0x1, 0x2)
+        checks["Dodongos Cavern MQ Compass Chest"] = chest_check(0x1, 0x5)
+        checks["Dodongos Cavern MQ Under Grave Chest"] = chest_check(0x1, 0x1)
+
+        checks["Dodongos Cavern MQ Deku Scrub Lobby Front"] = scrub_sanity_check(0x1, 0x4)
+        checks["Dodongos Cavern MQ Deku Scrub Lobby Rear"] = scrub_sanity_check(0x1, 0x2)
+        checks["Dodongos Cavern MQ Deku Scrub Side Room Near Lower Lizalfos"] = scrub_sanity_check(0x1, 0x8)
+        checks["Dodongos Cavern MQ Deku Scrub Staircase"] = scrub_sanity_check(0x1, 0x5)
+
+        checks["Dodongos Cavern MQ GS Scrub Room"] = skulltula_check(0x1, 0x1)
+        checks["Dodongos Cavern MQ GS Larvae Room"] = skulltula_check(0x1, 0x4)
+        checks["Dodongos Cavern MQ GS Lizalfos Room"] = skulltula_check(0x1, 0x2)
+        checks["Dodongos Cavern MQ GS Song of Time Block Room"] = skulltula_check(0x1, 0x3)
+        checks["Dodongos Cavern MQ GS Back Area"] = skulltula_check(0x1, 0x0)
+    end
+
+    -- Both of these are shared between vanilla and MQ
     checks["Dodongos Cavern Boss Room Chest"] = chest_check(0x12, 0x0)
-
-    checks["Dodongos Cavern Deku Scrub Lobby"] = scrub_sanity_check(0x1, 0x5)
-    checks["Dodongos Cavern Deku Scrub Side Room Near Dodongos"] = scrub_sanity_check(0x1, 0x2)
-    checks["Dodongos Cavern Deku Scrub Near Bomb Bag Left"] = scrub_sanity_check(0x1, 0x1)
-    checks["Dodongos Cavern Deku Scrub Near Bomb Bag Right"] = scrub_sanity_check(0x1, 0x4)
-
-    checks["Dodongos Cavern GS Side Room Near Lower Lizalfos"] = skulltula_check(0x01, 0x4)
-    checks["Dodongos Cavern GS Scarecrow"] = skulltula_check(0x01, 0x1)
-    checks["Dodongos Cavern GS Alcove Above Stairs"] = skulltula_check(0x01, 0x2)
-    checks["Dodongos Cavern GS Vines Above Stairs"] = skulltula_check(0x01, 0x0)
-    checks["Dodongos Cavern GS Back Room"] = skulltula_check(0x01, 0x3)
-
     checks["Dodongos Cavern King Dodongo Heart"] = boss_item_check(0x12)
     return checks
 end
 
-local read_fire_temple_checks = function()
+local read_fire_temple_checks = function(mq_table)
     local checks = {}
-    checks["Fire Temple Near Boss Chest"] = chest_check(0x04, 0x01)
-    checks["Fire Temple Flare Dancer Chest"] = chest_check(0x04, 0x00)
-    checks["Fire Temple Boss Key Chest"] = chest_check(0x04, 0x0C)
-    checks["Fire Temple Big Lava Room Lower Open Door Chest"] = chest_check(0x04, 0x04)
-    checks["Fire Temple Big Lava Room Blocked Door Chest"] = chest_check(0x04, 0x02)
-    checks["Fire Temple Boulder Maze Lower Chest"] = chest_check(0x04, 0x03)
-    checks["Fire Temple Boulder Maze Side Room Chest"] = chest_check(0x04, 0x08)
-    checks["Fire Temple Map Chest"] = chest_check(0x04, 0x0A)
-    checks["Fire Temple Boulder Maze Shortcut Chest"] = chest_check(0x04, 0x0B)
-    checks["Fire Temple Boulder Maze Upper Chest"] = chest_check(0x04, 0x06)
-    checks["Fire Temple Scarecrow Chest"] = chest_check(0x04, 0x0D)
-    checks["Fire Temple Compass Chest"] = chest_check(0x04, 0x07)
-    checks["Fire Temple Megaton Hammer Chest"] = chest_check(0x04, 0x05)
-    checks["Fire Temple Highest Goron Chest"] = chest_check(0x04, 0x09)
+    if not is_mq_check(mq_table, 0x4) then
+        checks["Fire Temple Near Boss Chest"] = chest_check(0x04, 0x01)
+        checks["Fire Temple Flare Dancer Chest"] = chest_check(0x04, 0x00)
+        checks["Fire Temple Boss Key Chest"] = chest_check(0x04, 0x0C)
+        checks["Fire Temple Big Lava Room Lower Open Door Chest"] = chest_check(0x04, 0x04)
+        checks["Fire Temple Big Lava Room Blocked Door Chest"] = chest_check(0x04, 0x02)
+        checks["Fire Temple Boulder Maze Lower Chest"] = chest_check(0x04, 0x03)
+        checks["Fire Temple Boulder Maze Side Room Chest"] = chest_check(0x04, 0x08)
+        checks["Fire Temple Map Chest"] = chest_check(0x04, 0x0A)
+        checks["Fire Temple Boulder Maze Shortcut Chest"] = chest_check(0x04, 0x0B)
+        checks["Fire Temple Boulder Maze Upper Chest"] = chest_check(0x04, 0x06)
+        checks["Fire Temple Scarecrow Chest"] = chest_check(0x04, 0x0D)
+        checks["Fire Temple Compass Chest"] = chest_check(0x04, 0x07)
+        checks["Fire Temple Megaton Hammer Chest"] = chest_check(0x04, 0x05)
+        checks["Fire Temple Highest Goron Chest"] = chest_check(0x04, 0x09)
 
-    checks["Fire Temple GS Boss Key Loop"] = skulltula_check(0x04, 0x1)
-    checks["Fire Temple GS Song of Time Room"] = skulltula_check(0x04, 0x0)
-    checks["Fire Temple GS Boulder Maze"] = skulltula_check(0x04, 0x2)
-    checks["Fire Temple GS Scarecrow Climb"] = skulltula_check(0x04, 0x4)
-    checks["Fire Temple GS Scarecrow Top"] = skulltula_check(0x04, 0x3)
+        checks["Fire Temple GS Boss Key Loop"] = skulltula_check(0x04, 0x1)
+        checks["Fire Temple GS Song of Time Room"] = skulltula_check(0x04, 0x0)
+        checks["Fire Temple GS Boulder Maze"] = skulltula_check(0x04, 0x2)
+        checks["Fire Temple GS Scarecrow Climb"] = skulltula_check(0x04, 0x4)
+        checks["Fire Temple GS Scarecrow Top"] = skulltula_check(0x04, 0x3)
+    else
+        checks["Fire Temple MQ Map Room Side Chest"] = chest_check(0x4, 0x2)
+        checks["Fire Temple MQ Megaton Hammer Chest"] = chest_check(0x4, 0x0)
+        checks["Fire Temple MQ Map Chest"] = chest_check(0x4, 0xC)
+        checks["Fire Temple MQ Near Boss Chest"] = chest_check(0x4, 0x7)
+        checks["Fire Temple MQ Big Lava Room Blocked Door Chest"] = chest_check(0x4, 0x1)
+        checks["Fire Temple MQ Boss Key Chest"] = chest_check(0x4, 0x4)
+        checks["Fire Temple MQ Lizalfos Maze Side Room Chest"] = chest_check(0x4, 0x8)
+        checks["Fire Temple MQ Compass Chest"] = chest_check(0x4, 0xB)
+        checks["Fire Temple MQ Lizalfos Maze Upper Chest"] = chest_check(0x4, 0x6)
+        checks["Fire Temple MQ Lizalfos Maze Lower Chest"] = chest_check(0x4, 0x3)
+        checks["Fire Temple MQ Freestanding Key"] = on_the_ground_check(0x4, 0x1C)
+        checks["Fire Temple MQ Chest On Fire"] = chest_check(0x4, 0x5)
+
+        checks["Fire Temple MQ GS Big Lava Room Open Door"] = skulltula_check(0x4, 0x0)
+        checks["Fire Temple MQ GS Skull On Fire"] = skulltula_check(0x4, 0x2)
+        checks["Fire Temple MQ GS Fire Wall Maze Center"] = skulltula_check(0x4, 0x3)
+        checks["Fire Temple MQ GS Fire Wall Maze Side Room"] = skulltula_check(0x4, 0x4)
+        checks["Fire Temple MQ GS Above Fire Wall Maze"] = skulltula_check(0x4, 0x1)
+    end
 
     checks["Fire Temple Volvagia Heart"] = boss_item_check(0x15)
     return checks
@@ -654,31 +782,62 @@ local read_zoras_fountain_checks = function()
     return checks
 end
 
-local read_jabu_checks = function()
+local read_jabu_checks = function(mq_table)
     local checks = {}
-    checks["Jabu Jabus Belly Boomerang Chest"] = chest_check(0x02, 0x01)
-    checks["Jabu Jabus Belly Map Chest"] = chest_check(0x02, 0x02)
-    checks["Jabu Jabus Belly Compass Chest"] = chest_check(0x02, 0x04)
-    checks["Jabu Jabus Belly Deku Scrub"] = scrub_sanity_check(0x02, 0x1)
-    checks["Jabu Jabus Belly GS Water Switch Room"] = skulltula_check(0x02, 0x3)
-    checks["Jabu Jabus Belly GS Lobby Basement Lower"] = skulltula_check(0x02, 0x0)
-    checks["Jabu Jabus Belly GS Lobby Basement Upper"] = skulltula_check(0x02, 0x1)
-    checks["Jabu Jabus Belly GS Near Boss"] = skulltula_check(0x02, 0x2)
+    if not is_mq_check(mq_table, 0x2) then
+        checks["Jabu Jabus Belly Boomerang Chest"] = chest_check(0x02, 0x01)
+        checks["Jabu Jabus Belly Map Chest"] = chest_check(0x02, 0x02)
+        checks["Jabu Jabus Belly Compass Chest"] = chest_check(0x02, 0x04)
+        checks["Jabu Jabus Belly Deku Scrub"] = scrub_sanity_check(0x02, 0x1)
+        checks["Jabu Jabus Belly GS Water Switch Room"] = skulltula_check(0x02, 0x3)
+        checks["Jabu Jabus Belly GS Lobby Basement Lower"] = skulltula_check(0x02, 0x0)
+        checks["Jabu Jabus Belly GS Lobby Basement Upper"] = skulltula_check(0x02, 0x1)
+        checks["Jabu Jabus Belly GS Near Boss"] = skulltula_check(0x02, 0x2)
+    else
+        checks["Jabu Jabus Belly MQ Map Chest"] = chest_check(0x2, 0x3)
+        checks["Jabu Jabus Belly MQ First Room Side Chest"] = chest_check(0x2, 0x5)
+        checks["Jabu Jabus Belly MQ Second Room Lower Chest"] = chest_check(0x2, 0x2)
+        checks["Jabu Jabus Belly MQ Compass Chest"] = chest_check(0x2, 0x0)
+        checks["Jabu Jabus Belly MQ Basement Near Switches Chest"] = chest_check(0x2, 0x8)
+        checks["Jabu Jabus Belly MQ Basement Near Vines Chest"] = chest_check(0x2, 0x4)
+        checks["Jabu Jabus Belly MQ Boomerang Room Small Chest"] = chest_check(0x2, 0x1)
+        checks["Jabu Jabus Belly MQ Boomerang Chest"] = chest_check(0x2, 0x6)
+        checks["Jabu Jabus Belly MQ Falling Like Like Room Chest"] = chest_check(0x2, 0x9)
+        checks["Jabu Jabus Belly MQ Second Room Upper Chest"] = chest_check(0x2, 0x7)
+        checks["Jabu Jabus Belly MQ Near Boss Chest"] = chest_check(0x2, 0xA)
+
+        checks["Jabu Jabus Belly MQ Cow"] = cow_check(0x2, 0x18)
+
+        checks["Jabu Jabus Belly MQ GS Boomerang Chest Room"] = skulltula_check(0x2, 0x0)
+        checks["Jabu Jabus Belly MQ GS Tailpasaran Room"] = skulltula_check(0x2, 0x2)
+        checks["Jabu Jabus Belly MQ GS Invisible Enemies Room"] = skulltula_check(0x2, 0x3)
+        checks["Jabu Jabus Belly MQ GS Near Boss"] = skulltula_check(0x2, 0x1)
+    end
 
     checks["Jabu Jabus Belly Barinade Heart"] = boss_item_check(0x13)
     return checks
 end
 
-local read_ice_cavern_checks = function()
+local read_ice_cavern_checks = function(mq_table)
     local checks = {}
+    if not is_mq_check(mq_table, 0x9) then
+        checks["Ice Cavern Map Chest"] = chest_check(0x09, 0x00)
+        checks["Ice Cavern Compass Chest"] = chest_check(0x09, 0x01)
+        checks["Ice Cavern Freestanding PoH"] = on_the_ground_check(0x09, 0x01)
+        checks["Ice Cavern Iron Boots Chest"] = chest_check(0x09, 0x02)
+        checks["Ice Cavern GS Spinning Scythe Room"] = skulltula_check(0x09, 0x1)
+        checks["Ice Cavern GS Heart Piece Room"] = skulltula_check(0x09, 0x2)
+        checks["Ice Cavern GS Push Block Room"] = skulltula_check(0x09, 0x0)
+    else
+        checks["Ice Cavern MQ Map Chest"] = chest_check(0x09, 0x01)
+        checks["Ice Cavern MQ Compass Chest"] = chest_check(0x09, 0x00)
+        checks["Ice Cavern MQ Freestanding PoH"] = on_the_ground_check(0x09, 0x01)
+        checks["Ice Cavern MQ Iron Boots Chest"] = chest_check(0x09, 0x02)
 
-    checks["Ice Cavern Map Chest"] = chest_check(0x09, 0x00)
-    checks["Ice Cavern Compass Chest"] = chest_check(0x09, 0x01)
-    checks["Ice Cavern Freestanding PoH"] = on_the_ground_check(0x09, 0x01)
-    checks["Ice Cavern Iron Boots Chest"] = chest_check(0x09, 0x02)
-    checks["Ice Cavern GS Spinning Scythe Room"] = skulltula_check(0x09, 0x1)
-    checks["Ice Cavern GS Heart Piece Room"] = skulltula_check(0x09, 0x2)
-    checks["Ice Cavern GS Push Block Room"] = skulltula_check(0x09, 0x0)
+        checks["Ice Cavern MQ GS Red Ice"] = skulltula_check(0x09, 0x1)
+        checks["Ice Cavern MQ GS Ice Block"] = skulltula_check(0x09, 0x2)
+        checks["Ice Cavern MQ GS Scarecrow"] = skulltula_check(0x09, 0x0)
+    end
     return checks
 end
 
@@ -703,24 +862,39 @@ local read_lake_hylia_checks = function()
     return checks
 end
 
-local read_water_temple_checks = function()
+local read_water_temple_checks = function(mq_table)
     local checks = {}
-    checks["Water Temple Compass Chest"] = chest_check(0x05, 0x09)
-    checks["Water Temple Map Chest"] = chest_check(0x05, 0x02)
-    checks["Water Temple Cracked Wall Chest"] = chest_check(0x05, 0x00)
-    checks["Water Temple Torches Chest"] = chest_check(0x05, 0x01)
-    checks["Water Temple Boss Key Chest"] = chest_check(0x05, 0x05)
-    checks["Water Temple Central Pillar Chest"] = chest_check(0x05, 0x06)
-    checks["Water Temple Central Bow Target Chest"] = chest_check(0x05, 0x08)
-    checks["Water Temple Longshot Chest"] = chest_check(0x05, 0x07)
-    checks["Water Temple River Chest"] = chest_check(0x05, 0x03)
-    checks["Water Temple Dragon Chest"] = chest_check(0x05, 0x0A)
+    if not is_mq_check(mq_table, 0x5) then
+        checks["Water Temple Compass Chest"] = chest_check(0x05, 0x09)
+        checks["Water Temple Map Chest"] = chest_check(0x05, 0x02)
+        checks["Water Temple Cracked Wall Chest"] = chest_check(0x05, 0x00)
+        checks["Water Temple Torches Chest"] = chest_check(0x05, 0x01)
+        checks["Water Temple Boss Key Chest"] = chest_check(0x05, 0x05)
+        checks["Water Temple Central Pillar Chest"] = chest_check(0x05, 0x06)
+        checks["Water Temple Central Bow Target Chest"] = chest_check(0x05, 0x08)
+        checks["Water Temple Longshot Chest"] = chest_check(0x05, 0x07)
+        checks["Water Temple River Chest"] = chest_check(0x05, 0x03)
+        checks["Water Temple Dragon Chest"] = chest_check(0x05, 0x0A)
 
-    checks["Water Temple GS Behind Gate"] = skulltula_check(0x05, 0x0)
-    checks["Water Temple GS Near Boss Key Chest"] = skulltula_check(0x05, 0x3)
-    checks["Water Temple GS Central Pillar"] = skulltula_check(0x05, 0x2)
-    checks["Water Temple GS Falling Platform Room"] = skulltula_check(0x05, 0x1)
-    checks["Water Temple GS River"] = skulltula_check(0x05, 0x4)
+        checks["Water Temple GS Behind Gate"] = skulltula_check(0x05, 0x0)
+        checks["Water Temple GS Near Boss Key Chest"] = skulltula_check(0x05, 0x3)
+        checks["Water Temple GS Central Pillar"] = skulltula_check(0x05, 0x2)
+        checks["Water Temple GS Falling Platform Room"] = skulltula_check(0x05, 0x1)
+        checks["Water Temple GS River"] = skulltula_check(0x05, 0x4)
+    else
+        checks["Water Temple MQ Longshot Chest"] = chest_check(0x5, 0x0)
+        checks["Water Temple MQ Map Chest"] = chest_check(0x5, 0x2)
+        checks["Water Temple MQ Compass Chest"] = chest_check(0x5, 0x1)
+        checks["Water Temple MQ Central Pillar Chest"] = chest_check(0x5, 0x6)
+        checks["Water Temple MQ Boss Key Chest"] = chest_check(0x5, 0x5)
+        checks["Water Temple MQ Freestanding Key"] = on_the_ground_check(0x5, 0x1)
+
+        checks["Water Temple MQ GS Lizalfos Hallway"] = skulltula_check(0x5, 0x0)
+        checks["Water Temple MQ GS Before Upper Water Switch"] = skulltula_check(0x5, 0x2)
+        checks["Water Temple MQ GS River"] = skulltula_check(0x5, 0x1)
+        checks["Water Temple MQ GS Freestanding Key Area"] = skulltula_check(0x5, 0x3)
+        checks["Water Temple MQ GS Triple Wall Torch"] = skulltula_check(0x5, 0x4)
+    end
 
     checks["Water Temple Morpha Heart"] = boss_item_check(0x16)
     return checks
@@ -757,30 +931,50 @@ local read_gerudo_fortress_checks = function()
     return checks
 end
 
-local read_gerudo_training_ground_checks = function()
+local read_gerudo_training_ground_checks = function(mq_table)
     local checks = {}
-    checks["Gerudo Training Grounds Lobby Left Chest"] = chest_check(0x0B, 0x13)
-    checks["Gerudo Training Grounds Lobby Right Chest"] = chest_check(0x0B, 0x07)
-    checks["Gerudo Training Grounds Stalfos Chest"] = chest_check(0x0B, 0x00)
-    checks["Gerudo Training Grounds Before Heavy Block Chest"] = chest_check(0x0B, 0x11)
-    checks["Gerudo Training Grounds Heavy Block First Chest"] = chest_check(0x0B, 0x0F)
-    checks["Gerudo Training Grounds Heavy Block Second Chest"] = chest_check(0x0B, 0x0E)
-    checks["Gerudo Training Grounds Heavy Block Third Chest"] = chest_check(0x0B, 0x14)
-    checks["Gerudo Training Grounds Heavy Block Fourth Chest"] = chest_check(0x0B, 0x02)
-    checks["Gerudo Training Grounds Eye Statue Chest"] = chest_check(0x0B, 0x03)
-    checks["Gerudo Training Grounds Near Scarecrow Chest"] = chest_check(0x0B, 0x04)
-    checks["Gerudo Training Grounds Hammer Room Clear Chest"] = chest_check(0x0B, 0x12)
-    checks["Gerudo Training Grounds Hammer Room Switch Chest"] = chest_check(0x0B, 0x10)
-    checks["Gerudo Training Grounds Freestanding Key"] = on_the_ground_check(0x0B, 0x1)
-    checks["Gerudo Training Grounds Maze Right Central Chest"] = chest_check(0x0B, 0x05)
-    checks["Gerudo Training Grounds Maze Right Side Chest"] = chest_check(0x0B, 0x08)
-    checks["Gerudo Training Grounds Underwater Silver Rupee Chest"] = chest_check(0x0B, 0x0D)
-    checks["Gerudo Training Grounds Beamos Chest"] = chest_check(0x0B, 0x01)
-    checks["Gerudo Training Grounds Hidden Ceiling Chest"] = chest_check(0x0B, 0x0B)
-    checks["Gerudo Training Grounds Maze Path First Chest"] = chest_check(0x0B, 0x06)
-    checks["Gerudo Training Grounds Maze Path Second Chest"] = chest_check(0x0B, 0x0A)
-    checks["Gerudo Training Grounds Maze Path Third Chest"] = chest_check(0x0B, 0x09)
-    checks["Gerudo Training Grounds Maze Path Final Chest"] = chest_check(0x0B, 0x0C)
+    if not is_mq_check(mq_table, 0xB) then
+        checks["Gerudo Training Grounds Lobby Left Chest"] = chest_check(0x0B, 0x13)
+        checks["Gerudo Training Grounds Lobby Right Chest"] = chest_check(0x0B, 0x07)
+        checks["Gerudo Training Grounds Stalfos Chest"] = chest_check(0x0B, 0x00)
+        checks["Gerudo Training Grounds Before Heavy Block Chest"] = chest_check(0x0B, 0x11)
+        checks["Gerudo Training Grounds Heavy Block First Chest"] = chest_check(0x0B, 0x0F)
+        checks["Gerudo Training Grounds Heavy Block Second Chest"] = chest_check(0x0B, 0x0E)
+        checks["Gerudo Training Grounds Heavy Block Third Chest"] = chest_check(0x0B, 0x14)
+        checks["Gerudo Training Grounds Heavy Block Fourth Chest"] = chest_check(0x0B, 0x02)
+        checks["Gerudo Training Grounds Eye Statue Chest"] = chest_check(0x0B, 0x03)
+        checks["Gerudo Training Grounds Near Scarecrow Chest"] = chest_check(0x0B, 0x04)
+        checks["Gerudo Training Grounds Hammer Room Clear Chest"] = chest_check(0x0B, 0x12)
+        checks["Gerudo Training Grounds Hammer Room Switch Chest"] = chest_check(0x0B, 0x10)
+        checks["Gerudo Training Grounds Freestanding Key"] = on_the_ground_check(0x0B, 0x1)
+        checks["Gerudo Training Grounds Maze Right Central Chest"] = chest_check(0x0B, 0x05)
+        checks["Gerudo Training Grounds Maze Right Side Chest"] = chest_check(0x0B, 0x08)
+        checks["Gerudo Training Grounds Underwater Silver Rupee Chest"] = chest_check(0x0B, 0x0D)
+        checks["Gerudo Training Grounds Beamos Chest"] = chest_check(0x0B, 0x01)
+        checks["Gerudo Training Grounds Hidden Ceiling Chest"] = chest_check(0x0B, 0x0B)
+        checks["Gerudo Training Grounds Maze Path First Chest"] = chest_check(0x0B, 0x06)
+        checks["Gerudo Training Grounds Maze Path Second Chest"] = chest_check(0x0B, 0x0A)
+        checks["Gerudo Training Grounds Maze Path Third Chest"] = chest_check(0x0B, 0x09)
+        checks["Gerudo Training Grounds Maze Path Final Chest"] = chest_check(0x0B, 0x0C)
+    else
+        checks["Gerudo Training Grounds MQ Lobby Left Chest"] = chest_check(0xB, 0x13)
+        checks["Gerudo Training Grounds MQ Lobby Right Chest"] = chest_check(0xB, 0x7)
+        checks["Gerudo Training Grounds MQ First Iron Knuckle Chest"] = chest_check(0xB, 0x0)
+        checks["Gerudo Training Grounds MQ Before Heavy Block Chest"] = chest_check(0xB, 0x11)
+        checks["Gerudo Training Grounds MQ Heavy Block Chest"] = chest_check(0xB, 0x2)
+        checks["Gerudo Training Grounds MQ Eye Statue Chest"] = chest_check(0xB, 0x3)
+        checks["Gerudo Training Grounds MQ Ice Arrows Chest"] = chest_check(0xB, 0x4)
+        checks["Gerudo Training Grounds MQ Second Iron Knuckle Chest"] = chest_check(0xB, 0x12)
+        checks["Gerudo Training Grounds MQ Flame Circle Chest"] = chest_check(0xB, 0xE)
+        checks["Gerudo Training Grounds MQ Maze Right Central Chest"] = chest_check(0xB, 0x5)
+        checks["Gerudo Training Grounds MQ Maze Right Side Chest"] = chest_check(0xB, 0x8)
+        checks["Gerudo Training Grounds MQ Underwater Silver Rupee Chest"] = chest_check(0xB, 0xD)
+        checks["Gerudo Training Grounds MQ Dinolfos Chest"] = chest_check(0xB, 0x1)
+        checks["Gerudo Training Grounds MQ Hidden Ceiling Chest"] = chest_check(0xB, 0xB)
+        checks["Gerudo Training Grounds MQ Maze Path First Chest"] = chest_check(0xB, 0x6)
+        checks["Gerudo Training Grounds MQ Maze Path Third Chest"] = chest_check(0xB, 0x9)
+        checks["Gerudo Training Grounds MQ Maze Path Second Chest"] = chest_check(0xB, 0xA)
+    end
     return checks
 end
 
@@ -805,62 +999,116 @@ local read_desert_colossus_checks = function()
     return checks
 end
 
-local read_spirit_temple_checks = function()
+local read_spirit_temple_checks = function(mq_table)
     local checks = {}
-    checks["Spirit Temple Child Bridge Chest"] = chest_check(0x06, 0x08)
-    checks["Spirit Temple Child Early Torches Chest"] = chest_check(0x06, 0x00)
-    checks["Spirit Temple Child Climb North Chest"] = chest_check(0x06, 0x06)
-    checks["Spirit Temple Child Climb East Chest"] = chest_check(0x06, 0x0C)
-    checks["Spirit Temple Map Chest"] = chest_check(0x06, 0x03)
-    checks["Spirit Temple Sun Block Room Chest"] = chest_check(0x06, 0x01)
-    checks["Spirit Temple Silver Gauntlets Chest"] = chest_check(0x5C, 0x0B)
+    if not is_mq_check(mq_table, 0x6) then
+        checks["Spirit Temple Child Bridge Chest"] = chest_check(0x06, 0x08)
+        checks["Spirit Temple Child Early Torches Chest"] = chest_check(0x06, 0x00)
+        checks["Spirit Temple Child Climb North Chest"] = chest_check(0x06, 0x06)
+        checks["Spirit Temple Child Climb East Chest"] = chest_check(0x06, 0x0C)
+        checks["Spirit Temple Map Chest"] = chest_check(0x06, 0x03)
+        checks["Spirit Temple Sun Block Room Chest"] = chest_check(0x06, 0x01)
+        checks["Spirit Temple Silver Gauntlets Chest"] = chest_check(0x5C, 0x0B)
 
-    checks["Spirit Temple Compass Chest"] = chest_check(0x06, 0x04)
-    checks["Spirit Temple Early Adult Right Chest"] = chest_check(0x06, 0x07)
-    checks["Spirit Temple First Mirror Left Chest"] = chest_check(0x06, 0x0D)
-    checks["Spirit Temple First Mirror Right Chest"] = chest_check(0x06, 0x0E)
-    checks["Spirit Temple Statue Room Northeast Chest"] = chest_check(0x06, 0x0F)
-    checks["Spirit Temple Statue Room Hand Chest"] = chest_check(0x06, 0x02)
-    checks["Spirit Temple Near Four Armos Chest"] = chest_check(0x06, 0x05)
-    checks["Spirit Temple Hallway Right Invisible Chest"] = chest_check(0x06, 0x14)
-    checks["Spirit Temple Hallway Left Invisible Chest"] = chest_check(0x06, 0x15)
-    checks["Spirit Temple Mirror Shield Chest"] = chest_check(0x5C, 0x09)
+        checks["Spirit Temple Compass Chest"] = chest_check(0x06, 0x04)
+        checks["Spirit Temple Early Adult Right Chest"] = chest_check(0x06, 0x07)
+        checks["Spirit Temple First Mirror Left Chest"] = chest_check(0x06, 0x0D)
+        checks["Spirit Temple First Mirror Right Chest"] = chest_check(0x06, 0x0E)
+        checks["Spirit Temple Statue Room Northeast Chest"] = chest_check(0x06, 0x0F)
+        checks["Spirit Temple Statue Room Hand Chest"] = chest_check(0x06, 0x02)
+        checks["Spirit Temple Near Four Armos Chest"] = chest_check(0x06, 0x05)
+        checks["Spirit Temple Hallway Right Invisible Chest"] = chest_check(0x06, 0x14)
+        checks["Spirit Temple Hallway Left Invisible Chest"] = chest_check(0x06, 0x15)
+        checks["Spirit Temple Mirror Shield Chest"] = chest_check(0x5C, 0x09)
 
-    checks["Spirit Temple Boss Key Chest"] = chest_check(0x06, 0x0A)
-    checks["Spirit Temple Topmost Chest"] = chest_check(0x06, 0x12)
+        checks["Spirit Temple Boss Key Chest"] = chest_check(0x06, 0x0A)
+        checks["Spirit Temple Topmost Chest"] = chest_check(0x06, 0x12)
 
-    checks["Spirit Temple GS Metal Fence"] = skulltula_check(0x06, 0x4)
-    checks["Spirit Temple GS Sun on Floor Room"] = skulltula_check(0x06, 0x3)
-    checks["Spirit Temple GS Hall After Sun Block Room"] = skulltula_check(0x06, 0x0)
-    checks["Spirit Temple GS Lobby"] = skulltula_check(0x06, 0x2)
-    checks["Spirit Temple GS Boulder Room"] = skulltula_check(0x06, 0x1)
+        checks["Spirit Temple GS Metal Fence"] = skulltula_check(0x06, 0x4)
+        checks["Spirit Temple GS Sun on Floor Room"] = skulltula_check(0x06, 0x3)
+        checks["Spirit Temple GS Hall After Sun Block Room"] = skulltula_check(0x06, 0x0)
+        checks["Spirit Temple GS Lobby"] = skulltula_check(0x06, 0x2)
+        checks["Spirit Temple GS Boulder Room"] = skulltula_check(0x06, 0x1)
+    else
+        checks["Spirit Temple MQ Entrance Front Left Chest"] = chest_check(0x6, 0x1A)
+        checks["Spirit Temple MQ Entrance Back Right Chest"] = chest_check(0x6, 0x1F)
+        checks["Spirit Temple MQ Entrance Front Right Chest"] = chest_check(0x6, 0x1B)
+        checks["Spirit Temple MQ Entrance Back Left Chest"] = chest_check(0x6, 0x1E)
+        checks["Spirit Temple MQ Map Chest"] = chest_check(0x6, 0x0)
+        checks["Spirit Temple MQ Map Room Enemy Chest"] = chest_check(0x6, 0x8)
+        checks["Spirit Temple MQ Child Climb North Chest"] = chest_check(0x6, 0x6)
+        checks["Spirit Temple MQ Child Climb South Chest"] = chest_check(0x6, 0xC)
+        checks["Spirit Temple MQ Compass Chest"] = chest_check(0x6, 0x3)
+        checks["Spirit Temple MQ Silver Block Hallway Chest"] = chest_check(0x6, 0x1C)
+        checks["Spirit Temple MQ Sun Block Room Chest"] = chest_check(0x6, 0x1)
+        checks["Spirit Temple Silver Gauntlets Chest"] = chest_check(0x5C, 0xB)
+
+        checks["Spirit Temple MQ Child Hammer Switch Chest"] = chest_check(0x6, 0x1D)
+        checks["Spirit Temple MQ Statue Room Lullaby Chest"] = chest_check(0x6, 0xF)
+        checks["Spirit Temple MQ Statue Room Invisible Chest"] = chest_check(0x6, 0x2)
+        checks["Spirit Temple MQ Leever Room Chest"] = chest_check(0x6, 0x4)
+        checks["Spirit Temple MQ Symphony Room Chest"] = chest_check(0x6, 0x7)
+        checks["Spirit Temple MQ Beamos Room Chest"] = chest_check(0x6, 0x19)
+        checks["Spirit Temple MQ Chest Switch Chest"] = chest_check(0x6, 0x18)
+        checks["Spirit Temple MQ Boss Key Chest"] = chest_check(0x6, 0x5)
+        checks["Spirit Temple Mirror Shield Chest"] = chest_check(0x5C, 0x9)
+        checks["Spirit Temple MQ Mirror Puzzle Invisible Chest"] = chest_check(0x6, 0x12)
+
+        checks["Spirit Temple MQ GS Sun Block Room"] = skulltula_check(0x6, 0x0)
+        checks["Spirit Temple MQ GS Leever Room"] = skulltula_check(0x6, 0x1)
+        checks["Spirit Temple MQ GS Symphony Room"] = skulltula_check(0x6, 0x3)
+        checks["Spirit Temple MQ GS Nine Thrones Room West"] = skulltula_check(0x6, 0x2)
+        checks["Spirit Temple MQ GS Nine Thrones Room North"] = skulltula_check(0x6, 0x4)
+    end
 
     checks["Spirit Temple Twinrova Heart"] = boss_item_check(0x17)
     return checks
 end
 
-local read_ganons_castle_checks = function()
+local read_ganons_castle_checks = function(mq_table)
     local checks = {}
-    checks["Ganons Castle Forest Trial Chest"] = chest_check(0x0D, 0x09)
-    checks["Ganons Castle Water Trial Left Chest"] = chest_check(0x0D, 0x07)
-    checks["Ganons Castle Water Trial Right Chest"] = chest_check(0x0D, 0x06)
-    checks["Ganons Castle Shadow Trial Front Chest"] = chest_check(0x0D, 0x08)
-    checks["Ganons Castle Shadow Trial Golden Gauntlets Chest"] = chest_check(0x0D, 0x05)
-    checks["Ganons Castle Light Trial First Left Chest"] = chest_check(0x0D, 0x0C)
-    checks["Ganons Castle Light Trial Second Left Chest"] = chest_check(0x0D, 0x0B)
-    checks["Ganons Castle Light Trial Third Left Chest"] = chest_check(0x0D, 0x0D)
-    checks["Ganons Castle Light Trial First Right Chest"] = chest_check(0x0D, 0x0E)
-    checks["Ganons Castle Light Trial Second Right Chest"] = chest_check(0x0D, 0x0A)
-    checks["Ganons Castle Light Trial Third Right Chest"] = chest_check(0x0D, 0x0F)
-    checks["Ganons Castle Light Trial Invisible Enemies Chest"] = chest_check(0x0D, 0x10)
-    checks["Ganons Castle Light Trial Lullaby Chest"] = chest_check(0x0D, 0x11)
-    checks["Ganons Castle Spirit Trial Crystal Switch Chest"] = chest_check(0x0D, 0x12)
-    checks["Ganons Castle Spirit Trial Invisible Chest"] = chest_check(0x0D, 0x14)
+    if not is_mq_check(mq_table, 0xD) then
+        checks["Ganons Castle Forest Trial Chest"] = chest_check(0x0D, 0x09)
+        checks["Ganons Castle Water Trial Left Chest"] = chest_check(0x0D, 0x07)
+        checks["Ganons Castle Water Trial Right Chest"] = chest_check(0x0D, 0x06)
+        checks["Ganons Castle Shadow Trial Front Chest"] = chest_check(0x0D, 0x08)
+        checks["Ganons Castle Shadow Trial Golden Gauntlets Chest"] = chest_check(0x0D, 0x05)
+        checks["Ganons Castle Light Trial First Left Chest"] = chest_check(0x0D, 0x0C)
+        checks["Ganons Castle Light Trial Second Left Chest"] = chest_check(0x0D, 0x0B)
+        checks["Ganons Castle Light Trial Third Left Chest"] = chest_check(0x0D, 0x0D)
+        checks["Ganons Castle Light Trial First Right Chest"] = chest_check(0x0D, 0x0E)
+        checks["Ganons Castle Light Trial Second Right Chest"] = chest_check(0x0D, 0x0A)
+        checks["Ganons Castle Light Trial Third Right Chest"] = chest_check(0x0D, 0x0F)
+        checks["Ganons Castle Light Trial Invisible Enemies Chest"] = chest_check(0x0D, 0x10)
+        checks["Ganons Castle Light Trial Lullaby Chest"] = chest_check(0x0D, 0x11)
+        checks["Ganons Castle Spirit Trial Crystal Switch Chest"] = chest_check(0x0D, 0x12)
+        checks["Ganons Castle Spirit Trial Invisible Chest"] = chest_check(0x0D, 0x14)
 
-    checks["Ganons Castle Deku Scrub Left"] = scrub_sanity_check(0xD, 0x8)
-    checks["Ganons Castle Deku Scrub Center-Left"] = scrub_sanity_check(0xD, 0x6)
-    checks["Ganons Castle Deku Scrub Center-Right"] = scrub_sanity_check(0xD, 0x4)
-    checks["Ganons Castle Deku Scrub Right"] = scrub_sanity_check(0xD, 0x9)
+        checks["Ganons Castle Deku Scrub Left"] = scrub_sanity_check(0xD, 0x9)
+        checks["Ganons Castle Deku Scrub Center-Left"] = scrub_sanity_check(0xD, 0x6)
+        checks["Ganons Castle Deku Scrub Center-Right"] = scrub_sanity_check(0xD, 0x4)
+        checks["Ganons Castle Deku Scrub Right"] = scrub_sanity_check(0xD, 0x8)
+    else
+        checks["Ganons Castle MQ Forest Trial Freestanding Key"] = on_the_ground_check(0xD, 0x1)
+        checks["Ganons Castle MQ Forest Trial Eye Switch Chest"] = chest_check(0xD, 0x2)
+        checks["Ganons Castle MQ Forest Trial Frozen Eye Switch Chest"] = chest_check(0xD, 0x3)
+        checks["Ganons Castle MQ Water Trial Chest"] = chest_check(0xD, 0x1)
+        checks["Ganons Castle MQ Shadow Trial Bomb Flower Chest"] = chest_check(0xD, 0x0)
+        checks["Ganons Castle MQ Shadow Trial Eye Switch Chest"] = chest_check(0xD, 0x5)
+        checks["Ganons Castle MQ Light Trial Lullaby Chest"] = chest_check(0xD, 0x4)
+        checks["Ganons Castle MQ Spirit Trial First Chest"] = chest_check(0xD, 0xA)
+        checks["Ganons Castle MQ Spirit Trial Invisible Chest"] = chest_check(0xD, 0x14)
+        checks["Ganons Castle MQ Spirit Trial Sun Front Left Chest"] = chest_check(0xD, 0x9)
+        checks["Ganons Castle MQ Spirit Trial Sun Back Left Chest"] = chest_check(0xD, 0x8)
+        checks["Ganons Castle MQ Spirit Trial Sun Back Right Chest"] = chest_check(0xD, 0x7)
+        checks["Ganons Castle MQ Golden Gauntlets Chest"] = chest_check(0xD, 0x6)
+
+        checks["Ganons Castle MQ Deku Scrub Left"] = scrub_sanity_check(0xD, 0x9)
+        checks["Ganons Castle MQ Deku Scrub Center-Left"] = scrub_sanity_check(0xD, 0x6)
+        checks["Ganons Castle MQ Deku Scrub Center"] = scrub_sanity_check(0xD, 0x4)
+        checks["Ganons Castle MQ Deku Scrub Center-Right"] = scrub_sanity_check(0xD, 0x8)
+        checks["Ganons Castle MQ Deku Scrub Right"] = scrub_sanity_check(0xD, 0x1)
+    end
 
     checks["Ganons Tower Boss Key Chest"] = chest_check(0x0A, 0x0B)
     return checks
@@ -907,40 +1155,40 @@ local read_dungeon_reward_checks = function()
     return checks
 end
 
-scanner.check_all_locations = function()
+scanner.check_all_locations = function(mq_table)
     local location_checks = {}
     for k,v in pairs(read_kokiri_forest_checks()) do location_checks[k] = v end
     for k,v in pairs(read_lost_woods_checks()) do location_checks[k] = v end
     for k,v in pairs(read_sacred_forest_meadow_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_deku_tree_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_forest_temple_checks()) do location_checks[k] = v end
+    for k,v in pairs(read_deku_tree_checks(mq_table)) do location_checks[k] = v end
+    for k,v in pairs(read_forest_temple_checks(mq_table)) do location_checks[k] = v end
     for k,v in pairs(read_hyrule_field_checks()) do location_checks[k] = v end
     for k,v in pairs(read_lon_lon_ranch_checks()) do location_checks[k] = v end
     for k,v in pairs(read_market_checks()) do location_checks[k] = v end
     for k,v in pairs(read_hyrule_castle_checks()) do location_checks[k] = v end
     for k,v in pairs(read_kakariko_village_checks()) do location_checks[k] = v end
     for k,v in pairs(read_graveyard_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_bottom_of_the_well_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_shadow_temple_checks()) do location_checks[k] = v end
+    for k,v in pairs(read_bottom_of_the_well_checks(mq_table)) do location_checks[k] = v end
+    for k,v in pairs(read_shadow_temple_checks(mq_table)) do location_checks[k] = v end
     for k,v in pairs(read_death_mountain_trail_checks()) do location_checks[k] = v end
     for k,v in pairs(read_goron_city_checks()) do location_checks[k] = v end
     for k,v in pairs(read_death_mountain_crater_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_dodongos_cavern_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_fire_temple_checks()) do location_checks[k] = v end
+    for k,v in pairs(read_dodongos_cavern_checks(mq_table)) do location_checks[k] = v end
+    for k,v in pairs(read_fire_temple_checks(mq_table)) do location_checks[k] = v end
     for k,v in pairs(read_zoras_river_checks()) do location_checks[k] = v end
     for k,v in pairs(read_zoras_domain_checks()) do location_checks[k] = v end
     for k,v in pairs(read_zoras_fountain_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_jabu_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_ice_cavern_checks()) do location_checks[k] = v end
+    for k,v in pairs(read_jabu_checks(mq_table)) do location_checks[k] = v end
+    for k,v in pairs(read_ice_cavern_checks(mq_table)) do location_checks[k] = v end
     for k,v in pairs(read_lake_hylia_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_water_temple_checks()) do location_checks[k] = v end
+    for k,v in pairs(read_water_temple_checks(mq_table)) do location_checks[k] = v end
     for k,v in pairs(read_gerudo_valley_checks()) do location_checks[k] = v end
     for k,v in pairs(read_gerudo_fortress_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_gerudo_training_ground_checks()) do location_checks[k] = v end
+    for k,v in pairs(read_gerudo_training_ground_checks(mq_table)) do location_checks[k] = v end
     for k,v in pairs(read_haunted_wasteland_checks()) do location_checks[k] = v end
     for k,v in pairs(read_desert_colossus_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_spirit_temple_checks()) do location_checks[k] = v end
-    for k,v in pairs(read_ganons_castle_checks()) do location_checks[k] = v end
+    for k,v in pairs(read_spirit_temple_checks(mq_table)) do location_checks[k] = v end
+    for k,v in pairs(read_ganons_castle_checks(mq_table)) do location_checks[k] = v end
     for k,v in pairs(read_outside_ganons_castle_checks()) do location_checks[k] = v end
     for k,v in pairs(read_song_checks()) do location_checks[k] = v end
     return location_checks
@@ -1938,6 +2186,8 @@ local player_names_address  = coop_context + 20
 local player_name_length    = 8 -- 8 bytes
 local rom_name_location     = player_names_address + 0x800
 
+local dungeon_is_mq_address = rando_context + 0xB1E8
+
 local save_context = 0x11A5D0
 local internal_count_addr = save_context + 0x90
 
@@ -2044,7 +2294,9 @@ lib.isGameComplete = function()
     return false
 end
 
-lib.getLocationChecks = scanner.check_all_locations
+lib.getLocationChecks = function()
+    return scanner.check_all_locations(dungeon_is_mq_address)
+end
 
 lib.localPlayerNumber = mainmemory.read_u8(player_id_addr)
 
