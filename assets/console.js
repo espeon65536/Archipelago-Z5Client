@@ -38,10 +38,6 @@ window.addEventListener('load', () => {
     if (event.target.value[0] === '/') {
       const commandParts = event.target.value.split(' ');
       switch (commandParts[0]) {
-        case '/sync':
-          serverSync();
-          break;
-
         case '/connect':
           if (!n64Connected) {
             appendConsoleMessage('An N64 device must be connected before the client can connect to the AP server.');
@@ -53,11 +49,6 @@ window.addEventListener('load', () => {
           await connectToServer(commandParts[0], commandParts[1]);
           break;
 
-        case '/launcher':
-          appendConsoleMessage('Opening dialog for launcher choice...');
-          window.ipc.send('setLauncher');
-          break;
-
         case '/fontsize':
           if (commandParts.length < 2) {
             appendConsoleMessage('You must specify a font size like: /fontsize 16');
@@ -65,9 +56,28 @@ window.addEventListener('load', () => {
           setFontSize(parseInt(commandParts[1]));
           break;
 
+        case '/launcher':
+          appendConsoleMessage('Opening dialog for launcher choice...');
+          window.ipc.send('setLauncher');
+          break;
+
         case '/pause':
         case '/malmo': // For the memes
           receiveItems ? disableReceivingItems() : enableReceivingItems();
+          break;
+
+        case '/sync':
+          serverSync();
+          break;
+
+        case '/help':
+          appendConsoleMessage('Available commands:');
+          appendConsoleMessage('/connect [server] [password] - Connect to an AP server with an optional password');
+          appendConsoleMessage('/fontsize [size] - Change the size of the font. 16 is default');
+          appendConsoleMessage('/launcher - Choose an emulator to launch ROMs with instead of the system default');
+          appendConsoleMessage('/pause - Pause or resume receiving items from other players');
+          appendConsoleMessage('/sync - Force the client to synchronize with the AP server');
+          appendConsoleMessage('/help - Print this message');
           break;
 
         default:
