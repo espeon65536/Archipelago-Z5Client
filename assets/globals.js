@@ -2,14 +2,14 @@
 const CLIENT_VERSION = {
   state: 'Beta',
   major: 0,
-  minor: 12,
+  minor: 14,
   patch: 0,
 };
 
-const SUPPORTED_ARCHIPELAGO_VERSION = {
+const ARCHIPELAGO_PROTOCOL_VERSION = {
   major: 0,
   minor: 1,
-  build: 8,
+  build: 9,
   class: 'Version',
 };
 
@@ -18,6 +18,14 @@ const DEFAULT_SERVER_PORT = 38281;
 let serverSocket = null;
 let serverAuthError = false;
 let serverPassword = null;
+
+const permissionMap = {
+  0: 'Disabled',
+  1: 'Enabled',
+  2: 'Goal',
+  6: 'Auto',
+  7: 'Enabled + Auto',
+};
 
 // Local client connection state
 let n64Connected = false;
