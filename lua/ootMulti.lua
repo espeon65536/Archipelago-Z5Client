@@ -268,8 +268,8 @@ end
 local read_sacred_forest_meadow_checks = function()
     local checks = {}
     checks["SFM Wolfos Grotto Chest"] = chest_check(0x3E, 0x11)
-    checks["SFM Deku Scrub Grotto Front"] = scrub_sanity_check(0x18, 0x8)
-    checks["SFM Deku Scrub Grotto Rear"] = scrub_sanity_check(0x18, 0x9)
+    checks["SFM Deku Scrub Grotto Front"] = scrub_sanity_check(0x18, 0x9)
+    checks["SFM Deku Scrub Grotto Rear"] = scrub_sanity_check(0x18, 0x8)
     checks["SFM GS"] = skulltula_check(0x0D, 0x3)
     return checks
 end
@@ -380,8 +380,8 @@ local read_lon_lon_ranch_checks = function()
     local checks = {}
     checks["LLR Talons Chickens"] = item_get_info_check(0x1, 0x2)
     checks["LLR Freestanding PoH"] = on_the_ground_check(0x4C, 0x01)
-    checks["LLR Tower Left Cow"] = cow_check(0x4C, 0x18)
-    checks["LLR Tower Right Cow"] = cow_check(0x4C, 0x19)
+    checks["LLR Tower Left Cow"] = cow_check(0x4C, 0x19)
+    checks["LLR Tower Right Cow"] = cow_check(0x4C, 0x18)
 
     -- checks["Lon Lon Ranch - Epona"] = event_check(0x1, 0x8)
 
@@ -744,8 +744,8 @@ local read_zoras_river_checks = function()
     checks["ZR Frogs Ocarina Game"] = event_check(0xD, 0x0)
     checks["ZR Near Open Grotto Freestanding PoH"] = on_the_ground_check(0x54, 0x04)
     checks["ZR Near Domain Freestanding PoH"] = on_the_ground_check(0x54, 0x0B)
-    checks["ZR Deku Scrub Grotto Front"] = scrub_sanity_check(0x15, 0x8)
-    checks["ZR Deku Scrub Grotto Rear"] = scrub_sanity_check(0x15, 0x9)
+    checks["ZR Deku Scrub Grotto Front"] = scrub_sanity_check(0x15, 0x9)
+    checks["ZR Deku Scrub Grotto Rear"] = scrub_sanity_check(0x15, 0x8)
 
     checks["ZR GS Tree"] = skulltula_check(0x11, 0x1)
     --NOTE: There is no GS in the soft soil. It's the only one that doesn't have one.
@@ -903,8 +903,8 @@ local read_gerudo_valley_checks = function()
     checks["GV Crate Freestanding PoH"] = on_the_ground_check(0x5A, 0x2)
     checks["GV Waterfall Freestanding PoH"] = on_the_ground_check(0x5A, 0x1)
     checks["GV Chest"] = chest_check(0x5A, 0x00)
-    checks["GV Deku Scrub Grotto Front"] = scrub_sanity_check(0x1A, 0x8)
-    checks["GV Deku Scrub Grotto Rear"] = scrub_sanity_check(0x1A, 0x9)
+    checks["GV Deku Scrub Grotto Front"] = scrub_sanity_check(0x1A, 0x9)
+    checks["GV Deku Scrub Grotto Rear"] = scrub_sanity_check(0x1A, 0x8)
     checks["GV Cow"] = cow_check(0x5A, 0x18)
 
     checks["GV GS Small Bridge"] = skulltula_check(0x13, 0x1)
@@ -988,8 +988,8 @@ local read_desert_colossus_checks = function()
     local checks = {}
     checks["Colossus Great Fairy Reward"] = item_get_info_check(0x2, 0x2)
     checks["Colossus Freestanding PoH"] = on_the_ground_check(0x5C, 0xD)
-    checks["Colossus Deku Scrub Grotto Front"] = scrub_sanity_check(0x27, 0x8)
-    checks["Colossus Deku Scrub Grotto Rear"] = scrub_sanity_check(0x27, 0x9)
+    checks["Colossus Deku Scrub Grotto Front"] = scrub_sanity_check(0x27, 0x9)
+    checks["Colossus Deku Scrub Grotto Rear"] = scrub_sanity_check(0x27, 0x8)
 
     checks["Colossus GS Bean Patch"] = skulltula_check(0x15, 0x0)
     checks["Colossus GS Tree"] = skulltula_check(0x15, 0x3)
