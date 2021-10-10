@@ -1,4 +1,4 @@
-local script_version = '2021-10-03' -- Should be the last modified date
+local script_version = '2021-10-10' -- Should be the last modified date
 
 --------------------------------------------------
 -- Heavily modified form of RiptideSage's tracker
@@ -2311,6 +2311,7 @@ local connection
 local host = '127.0.0.1'
 local port = 28920
 local clientConnected = false
+local lastReconnectTime = 0
 
 local stringSplit = function(str, sep)
     local parts = {}
@@ -2320,9 +2321,12 @@ local stringSplit = function(str, sep)
     return parts
 end
 
-local connectToAPClient = function()
+local connectToAPClient = function(reconnect)
+    if not reconnect then
+        print('Connecting to AP client at ' .. host .. ':' .. port)
+    end
+
     -- Open a TCP socket
-    print('Connecting to AP client at ' .. host .. ':' .. port)
     connection, err = socket:tcp()
     if err ~= nil then
         print(err)
@@ -2330,15 +2334,16 @@ local connectToAPClient = function()
     end
 
     -- Establish connection to socket server hosted on AP Client
+    lastReconnectTime = os.time()
     connection:setoption('linger', {['on']=false, ['timeout']=0})
+    connection:settimeout(0.025)
     local returnCode, errorMessage = connection:connect(host, port)
     if (returnCode == nil) then
         print('Error while connecting: ' .. errorMessage)
-        print('Please restart the LUA script to reconnect to the AP Client.')
+        print('Waiting five seconds to retry.')
         return false
     end
     print('Connection established.')
-    connection:settimeout(0)
     return true
 end
 
@@ -2350,7 +2355,7 @@ local runMessageWatcher = coroutine.wrap(function()
 
             -- If the server has closed the connection, do nothing
             if status == 'closed' then
-                print('Lost connection to AP Client. Make sure the client is running, then restart this script.')
+                print('Lost connection to AP Client. Attempting to reconnect.')
                 connection:close()
                 clientConnected = false
                 return
@@ -2457,13 +2462,17 @@ clientConnected = connectToAPClient()
 
 -- Wait for incoming messages
 while true do
-    if not clientConnected then break end
+    if not clientConnected then
+        if os.time() > (lastReconnectTime + 5) then
+            clientConnected = connectToAPClient(true)
+        end
+    end
 
     -- If the client is connected, check if a message bas been received on the socket connection and act on it
     if clientConnected then runMessageWatcher() end
 
     -- Advance the emulator by three frames, or do nothing if the emulator is paused
-    for i=0, 2, 1 do
+    for i=0, 4, 1 do
         emu.yield()
     end
 end
