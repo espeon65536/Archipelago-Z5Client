@@ -32,12 +32,18 @@ window.addEventListener('load', () => {
   });
 
   // When the N64 connects or disconnects, update the client status
-  window.oot.deviceConnected((connected) => {
+  window.oot.deviceConnected(async (connected) => {
     n64Connected = !!connected;
     const statusDisplay = document.getElementById('n64-device-status');
     statusDisplay.classList.add(connected ? 'connected' : 'disconnected');
     statusDisplay.classList.remove(connected ? 'disconnected' : 'connected');
     statusDisplay.innerText = connected ? 'Connected' : 'Disconnected';
+
+    // If the client has entered a server address, attempt to reconnect to that server
+    const serverAddress = document.getElementById('server-address').value;
+    if (serverAddress) {
+      await connectToServer(serverAddress, serverPassword);
+    }
   });
 });
 

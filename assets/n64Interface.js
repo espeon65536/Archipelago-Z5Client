@@ -12,9 +12,9 @@ const setResolve = (resolve) => {
   if(currentTimeout) { clearTimeout(currentTimeout); }
   currentTimeout = setTimeout(() => {
     window.oot.disconnectAllClients();
-    appendConsoleMessage('A timeout has occurred and the LUA script has been terminated. To continue, you must ' +
-      'restart the LUA script in BizHawk and re-connect to the AP server. This probably happened because you opened ' +
-      'a menu in BizHawk.');
+    appendConsoleMessage('A timeout has occurred and the connection to BizHawk has been terminated.')
+    appendConsoleMessage('This probably happened because you opened a menu in BizHawk.');
+    appendConsoleMessage('The client will auto-reconnect once BizHawk resumes communication.');
 
     // Stop querying the n64
     if (n64Interval) {
