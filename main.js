@@ -168,8 +168,11 @@ app.whenReady().then(async () => {
         // Patch the .apz5
         patchingWindow = createPatchingWindow();
         await new Promise((r) => setTimeout(r, 250)); // Wait 250 milliseconds for the patching window to render
-        const outPath = path.join(path.dirname(arg), `${path.basename(arg).substr(0, path.basename(arg).length - 5)}.n64`);
-        childProcess.execFileSync(path.join(__dirname, 'oot-patcher', 'Patch.exe'), [config.baseRomPath, arg, outPath]);
+        const outPath = path.join(path.dirname(arg),
+          `${path.basename(arg).substr(0, path.basename(arg).length - 5)}.n64`);
+        childProcess.execFileSync(path.join(__dirname, 'oot-patcher', 'Patch.exe'), // Path
+          [config.baseRomPath, arg, outPath],
+          { timeout: 60000 }); // Timeout the process after one minute
 
         // If a custom launcher is specified, attempt to launch the ROM file using the specified loader
         if (config.hasOwnProperty('launcherPath') && fs.existsSync(config.launcherPath)) {
