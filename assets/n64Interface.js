@@ -12,9 +12,15 @@ const setResolve = (resolve) => {
   if(currentTimeout) { clearTimeout(currentTimeout); }
   currentTimeout = setTimeout(() => {
     window.oot.disconnectAllClients();
-    appendConsoleMessage('A timeout has occurred and the connection to BizHawk has been terminated.')
-    appendConsoleMessage('This probably happened because you opened a menu in BizHawk.');
+    appendConsoleMessage('A timeout has occurred and the connection to BizHawk and the AP server ' +
+      'have been terminated.');
     appendConsoleMessage('The client will auto-reconnect once BizHawk resumes communication.');
+
+    // Client timeouts occur if the user manually disconnects from the AP server. If that was not the case,
+    // suggest another possible reason this may have occurred
+    if (!preventReconnect) {
+      appendConsoleMessage('This probably happened because you opened a menu in BizHawk.');
+    }
 
     // Stop querying the n64
     if (n64Interval) {
