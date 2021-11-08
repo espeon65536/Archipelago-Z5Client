@@ -1,13 +1,17 @@
 // noinspection JSBitwiseOperatorUsage
 
 let itemsReceived = [];
+
+// Track reconnection attempts
 const maxReconnectAttempts = 10;
+let preventReconnect = false;
 let reconnectAttempts = 0;
+let reconnectTimeout = null;
+let lastServerAddress = null;
 
 // Control variable for the n64 watcher. Contains an interval (see MDN: setInterval)
 let n64Interval = null;
 let n64IntervalComplete = true;
-let reconnectInterval = null;
 
 // Location Ids provided by the server
 let checkedLocations = [];
@@ -28,12 +32,21 @@ window.addEventListener('load', async () => {
 
     // If the input value is empty, do not attempt to reconnect
     if (!event.target.value) {
+      preventReconnect = true;
+      lastServerAddress = null;
+
+      // If the socket is open, close it
       if (serverSocket && serverSocket.readyState === WebSocket.OPEN) {
         serverSocket.close();
         serverSocket = null;
       }
+
+      // If the user did not specify a server address, do not attempt to connect
+      return;
     }
 
+    // User specified a server. Attempt to connect
+    preventReconnect = false;
     await connectToServer(event.target.value);
   });
 });
@@ -43,6 +56,9 @@ const connectToServer = async (address, password=null) => {
     serverSocket.close();
     serverSocket = null;
   }
+
+  // If an empty string is passed as the address, do not attempt to connect
+  if (!address) { return; }
 
   // This is a new connection attempt, no auth error has occurred yet
   serverAuthError = false;
@@ -107,12 +123,8 @@ const connectToServer = async (address, password=null) => {
           break;
 
         case 'Connected':
-          // Reset reconnection info if necessary
+          // Reset reconnection info
           reconnectAttempts = 0;
-          if (reconnectInterval) {
-            clearInterval(reconnectInterval);
-            reconnectInterval = null;
-          }
 
           // Store the reported location check data from the server. They are arrays of locationIds
           checkedLocations = command.checked_locations;
@@ -349,18 +361,26 @@ const connectToServer = async (address, password=null) => {
 
     // If the user cleared the server address, do nothing
     const serverAddress = document.getElementById('server-address').value;
-    if (!serverAddress) { return; }
+    if (preventReconnect || !serverAddress) { return; }
 
-    // Attempt to reconnect to the AP server
+    // If the N64 device is not available, do nothing
     if (!n64Connected) { return; }
 
-    setTimeout(() => {
+    if (reconnectTimeout) {
+      clearTimeout(reconnectTimeout);
+      reconnectTimeout = null;
+    }
+
+    reconnectTimeout = setTimeout(() => {
       // Do not attempt to reconnect if a server connection exists already. This can happen if a user attempts
       // to connect to a new server after connecting to a previous one
       if (serverSocket && serverSocket.readyState === WebSocket.OPEN) { return; }
 
       // If the socket was closed in response to an auth error, do not reconnect
       if (serverAuthError) { return }
+
+      // If reconnection is currently prohibited for any other reason, do not attempt to reconnect
+      if (preventReconnect) { return; }
 
       // Do not exceed the limit of reconnection attempts
       if (++reconnectAttempts > maxReconnectAttempts) {
