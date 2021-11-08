@@ -574,7 +574,7 @@ local read_shadow_temple_checks = function(mq_table_address)
         checks["Shadow Temple MQ Boss Key Chest"] = chest_check(0x7, 0xB)
         checks["Shadow Temple MQ Spike Walls Left Chest"] = chest_check(0x7, 0xA)
         checks["Shadow Temple MQ Freestanding Key"] = on_the_ground_check(0x7, 0x6)
-        checks["Shadow Temple MQ Bomb Flower Chest"] = on_the_ground_check(0x7, 0xD)
+        checks["Shadow Temple MQ Bomb Flower Chest"] = chest_check(0x7, 0xD)
 
         checks["Shadow Temple MQ GS Falling Spikes Room"] = skulltula_check(0x7, 0x1)
         checks["Shadow Temple MQ GS Wind Hint Room"] = skulltula_check(0x7, 0x0)
