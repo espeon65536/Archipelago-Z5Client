@@ -34,3 +34,12 @@ terminate and ask you to run the Z5Client before trying to run it again.
 ## Where to Acquire a Base ROM:
 You must dump your base ROM file from your physical cartridge of the English version of Ocarina of Time.
 There are several methods of doing so, which are outside the scope of this guide.
+
+## Run it from Source:
+```shell
+git clone https://github.com/ArchipelagoMW/Z5Client.git
+cd Z5Client
+npm install
+npm run electron-rebuild
+npm run start [patchFile]
+```
