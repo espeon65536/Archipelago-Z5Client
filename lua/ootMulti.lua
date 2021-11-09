@@ -2297,7 +2297,6 @@ end
 
 lib.isDeathLinkEnabled = function()
     local death_link_flag = mainmemory.read_u16_be(coop_context + 0xA)
-    console.log(death_link_flag)
     return death_link_flag > 0
 end
 

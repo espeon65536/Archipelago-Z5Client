@@ -30,6 +30,7 @@ let deathLinkEnabled = false;
 let lastForcedDeath = new Date().getTime();
 let linkIsDead = false;
 let linkIsStillDead = false;
+let linkMustDie = false;
 
 window.addEventListener('load', async () => {
   // Handle server address change
@@ -276,29 +277,37 @@ const connectToServer = async (address, password=null) => {
               sendLocationChecks(newLocationChecks);
             }
 
-            // Check is DeathLink is enabled and Link is dead
-            if (deathLinkEnabled && linkIsDead) {
-              if (!linkIsStillDead) { // Link is dead, and it just happened
-                // Keep track of Link's state to prevent sending multiple DeathLink signals per death
-                linkIsStillDead = true;
+            // Check if DeathLink is enabled and Link is dead
+            if (deathLinkEnabled) {
+              if (linkIsDead) {
+                if (!linkIsStillDead) { // Link is dead, and it just happened
+                  // Keep track of Link's state to prevent sending multiple DeathLink signals per death
+                  linkIsStillDead = true;
 
-                // Check if it has been at least ten seconds since the last DeathLink network signal
-                // was send or received
-                if (new Date().getTime() > (lastForcedDeath + 10000)) {
-                  if (serverStatus && serverSocket.readyState === WebSocket.OPEN) {
-                    // Link just died, so ignore DeathLink signals for the next ten seconds
-                    lastForcedDeath = new Date().getTime();
-                    serverSocket.send(JSON.stringify([{
-                      cmd: 'Bounce',
-                      tags: ['DeathLink'],
-                      data: {
-                        time: Math.floor(lastForcedDeath / 1000),
-                        source: players.find((player) =>
-                          (player.team === playerTeam) && (player.slot === playerSlot)).alias, // Local player alias
-                      },
-                    }]));
+                  // Check if it has been at least ten seconds since the last DeathLink network signal
+                  // was send or received
+                  if (new Date().getTime() > (lastForcedDeath + 10000)) {
+                    if (serverStatus && serverSocket.readyState === WebSocket.OPEN) {
+                      // Link just died, so ignore DeathLink signals for the next ten seconds
+                      lastForcedDeath = new Date().getTime();
+                      serverSocket.send(JSON.stringify([{
+                        cmd: 'Bounce',
+                        tags: ['DeathLink'],
+                        data: {
+                          time: Math.floor(lastForcedDeath / 1000),
+                          source: players.find((player) =>
+                            (player.team === playerTeam) && (player.slot === playerSlot)).alias, // Local player alias
+                        },
+                      }]));
+                    }
                   }
                 }
+              }
+
+              // If Link is supposed to die, kill him
+              if (linkMustDie) {
+                await killLink();
+                linkMustDie = false;
               }
             }
 
@@ -310,7 +319,8 @@ const connectToServer = async (address, password=null) => {
               n64IntervalComplete = true;
               return;
             } else {
-              linkIsAlive = (parseInt(linkIsAlive[0], 10) === 1);
+              linkIsDead = (parseInt(linkIsAlive[0], 10) === 0);
+              if (!linkIsDead) { linkIsStillDead = false; }
             }
 
             // Interval complete, allow a new run
@@ -407,7 +417,7 @@ const connectToServer = async (address, password=null) => {
               appendConsoleMessage(`${command.data.source} has died, and took you with them.`);
 
               // Kill Link
-              await killLink();
+              linkMustDie = true;
             }
           }
           break;
