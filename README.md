@@ -10,7 +10,7 @@ currently the only version of BizHawk supported for Archipelago's implementation
 
 ## How to Install
 ### Z5Client
-Simply double-click on the `Z5Client-Win64-Setup-(version).exe` file, and the program will automatically install
+Simply double-click on the `Z5Client-win32-x64-(version).exe` file, and the program will automatically install
 and launch. You may delete the setup file after installation.
 
 ### BizHawk 2.3
