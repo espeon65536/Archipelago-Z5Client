@@ -314,6 +314,21 @@ ipcMain.on('isGameComplete', (event) => {
     socket.write(socketMessage('isGameComplete'));
   });
 });
+ipcMain.on('isDeathLinkEnabled', (event) => {
+  Object.values(socketClients).forEach((socket) => {
+    socket.write(socketMessage('isDeathLinkEnabled'));
+  });
+});
+ipcMain.on('isLinkAlive', (event) => {
+  Object.values(socketClients).forEach((socket) => {
+    socket.write(socketMessage('isLinkAlive'));
+  });
+});
+ipcMain.on('killLink', (event) => {
+  Object.values(socketClients).forEach((socket) => {
+    socket.write(socketMessage('killLink'));
+  });
+});
 ipcMain.on('disconnectAllClients', (event) => {
   Object.values(socketClients).forEach((socket) => {
     socket.destroy();

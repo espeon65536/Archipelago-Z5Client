@@ -25,6 +25,12 @@ const CLIENT_STATUS = {
   CLIENT_GOAL: 30,
 };
 
+// DeathLink tracking
+let deathLinkEnabled = false;
+let lastForcedDeath = new Date().getTime();
+let linkIsDead = false;
+let linkIsStillDead = false;
+
 window.addEventListener('load', async () => {
   // Handle server address change
   document.getElementById('server-address').addEventListener('keydown', async (event) => {
@@ -109,13 +115,23 @@ const connectToServer = async (address, password=null) => {
             return;
           }
 
+          // Determine if DeathLink is enabled
+          const deathLink = await isDeathLinkEnabled();
+          if (deathLink && (parseInt(deathLink[0], 10) === 1)) {
+            deathLinkEnabled = true;
+          }
+
+          // Include DeathLink tag if it is enabled in the ROM
+          const tags = ['Z5Client'];
+          if (deathLinkEnabled) { tags.push('DeathLink'); }
+
           // Authenticate with the server
           const connectionData = {
             cmd: 'Connect',
             game: 'Ocarina of Time',
             name: romName[0],
             uuid: getClientId(),
-            tags: ['Z5 Client'],
+            tags,
             password: serverPassword,
             version: ARCHIPELAGO_PROTOCOL_VERSION,
           };
@@ -184,7 +200,7 @@ const connectToServer = async (address, password=null) => {
               }
             }
 
-            // Check if link is currently able to receive an item
+            // Check if Link is currently able to receive an item
             let itemReceivable = await isItemReceivable();
             if (itemReceivable === null) {
               appendConsoleMessage('Timeout while retrieving value for isItemReceivable.');
@@ -192,12 +208,12 @@ const connectToServer = async (address, password=null) => {
               n64IntervalComplete = true;
               return;
             }
+            itemReceivable = (parseInt(itemReceivable[0], 10) === 1);
 
             if (receiveItems) {
-              itemReceivable = itemReceivable[0];
               // If link can receive an item, see if there are any items to send. This order is important because
               // we know if link is able to receive an item, the received items count will always be correct
-              if (parseInt(itemReceivable, 10)) {
+              if (itemReceivable) {
                 let receivedItemCount = await getReceivedItemCount();
                 if (receivedItemCount === null) {
                   appendConsoleMessage('Timeout while retrieving the received item count.');
@@ -258,6 +274,43 @@ const connectToServer = async (address, password=null) => {
             // If there are new location checks, send them to the AP server
             if (newLocationChecks.length > 0) {
               sendLocationChecks(newLocationChecks);
+            }
+
+            // Check is DeathLink is enabled and Link is dead
+            if (deathLinkEnabled && linkIsDead) {
+              if (!linkIsStillDead) { // Link is dead, and it just happened
+                // Keep track of Link's state to prevent sending multiple DeathLink signals per death
+                linkIsStillDead = true;
+
+                // Check if it has been at least ten seconds since the last DeathLink network signal
+                // was send or received
+                if (new Date().getTime() > (lastForcedDeath + 10000)) {
+                  if (serverStatus && serverSocket.readyState === WebSocket.OPEN) {
+                    // Link just died, so ignore DeathLink signals for the next ten seconds
+                    lastForcedDeath = new Date().getTime();
+                    serverSocket.send(JSON.stringify([{
+                      cmd: 'Bounce',
+                      tags: ['DeathLink'],
+                      data: {
+                        time: Math.floor(lastForcedDeath / 1000),
+                        source: players.find((player) =>
+                          (player.team === playerTeam) && (player.slot === playerSlot)).alias, // Local player alias
+                      },
+                    }]));
+                  }
+                }
+              }
+            }
+
+            // Determine if Link is currently dead
+            let linkIsAlive = await isLinkAlive();
+            if (linkIsAlive === null) {
+              appendConsoleMessage('Timeout while retrieving linkIsAlive.');
+              clearInterval(n64Interval);
+              n64IntervalComplete = true;
+              return;
+            } else {
+              linkIsAlive = (parseInt(linkIsAlive[0], 10) === 1);
             }
 
             // Interval complete, allow a new run
@@ -343,6 +396,20 @@ const connectToServer = async (address, password=null) => {
             localStorage.setItem('dataPackage', JSON.stringify(command.data));
           }
           buildItemAndLocationData(command.data);
+          break;
+
+        case 'Bounced':
+          // DeathLink handling
+          if (command.tags.includes('DeathLink')) {
+            // Has it been at least ten seconds since the last time Link was forcibly killed?
+            if (deathLinkEnabled && (new Date().getTime() > (lastForcedDeath + 10000))) {
+              // Notify the player of the DeathLink occurrence, and who is to blame
+              appendConsoleMessage(`${command.data.source} has died, and took you with them.`);
+
+              // Kill Link
+              await killLink();
+            }
+          }
           break;
 
         default:

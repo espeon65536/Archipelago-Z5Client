@@ -90,3 +90,18 @@ const isGameComplete = () => new Promise((resolve) => {
   setResolve(resolve);
   window.oot.isGameComplete();
 });
+
+const isDeathLinkEnabled = () => new Promise((resolve) => {
+  setResolve(resolve);
+  window.oot.isDeathLinkEnabled();
+});
+
+const isLinkAlive = () => new Promise((resolve) => {
+  setResolve(resolve);
+  window.oot.isLinkAlive();
+});
+
+const killLink = () => new Promise((resolve) => {
+  setResolve(resolve);
+  window.oot.killLink();
+});
