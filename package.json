@@ -1,5 +1,5 @@
 {
-  "name": "archipelago-z5client",
+  "name": "z5client",
   "version": "0.13.0",
   "author": "Chris Wilson <chris@legendserver.info>",
   "description": "A Z5 client designed for use with the Archipelago implementation of the Ocarina of Time randomizer.",
@@ -11,13 +11,13 @@
     "make": "electron-forge make",
     "electron-rebuild": "electron-rebuild"
   },
-  "homepage": "https://github.com/LegendaryLinux/Archipelago-Z5Client#readme",
+  "homepage": "https://github.com/LegendaryLinux/Z5Client#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LegendaryLinux/Archipelago-Z5Client.git"
+    "url": "git+https://github.com/LegendaryLinux/Z5Client.git"
   },
   "bugs": {
-    "url": "https://github.com/LegendaryLinux/Archipelago-Z5Client/issues"
+    "url": "https://github.com/LegendaryLinux/Z5Client/issues"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.3.7",

@@ -42,7 +42,7 @@ if (require('electron-squirrel-startup')) {
   if (process.platform === 'win32') {
     // Prepare to add registry entries for .apz5 files
     const Registry = require('winreg');
-    const exePath = path.join(process.env.LOCALAPPDATA, 'Archipelago-Z5Client', 'Archipelago-Z5Client.exe');
+    const exePath = path.join(process.env.LOCALAPPDATA, 'Z5Client', 'Z5Client.exe');
 
     // Set file type description for .apz5 files
     const descriptionKey = new Registry({
