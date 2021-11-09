@@ -2295,6 +2295,23 @@ lib.isGameComplete = function()
     return false
 end
 
+lib.isDeathLinkEnabled = function()
+    local death_link_flag = mainmemory.read_u16_be(coop_context + 0xA)
+    console.log(death_link_flag)
+    return death_link_flag > 0
+end
+
+lib.isLinkAlive = function()
+    -- Read Link's current HP
+    local hp_counter = mainmemory.read_u16_be(0x11A600)
+    return hp_counter > 0
+end
+
+lib.killLink = function()
+    -- Set Link's HP to zero, thus killing him
+    mainmemory.write_u16_be(0x11A600, 0)
+end
+
 lib.getLocationChecks = function()
     return scanner.check_all_locations(master_quest_table_address)
 end
@@ -2435,14 +2452,18 @@ local runMessageWatcher = coroutine.wrap(function()
                         end
                     end
                 connection:send(message)
+                return
             end
 
             -- Expects message format: "getCurrentGameMode"
             -- Returns message format: "requestComplete|gameMode"
             if command == 'getCurrentGameMode' then
                 connection:send('requestComplete|' .. lib.getCurrentGameMode())
+                return
             end
 
+            -- Expects message format: "isGameComplete"
+            -- Returns message format: "requestComplete|1 or 0"
             if command == 'isGameComplete' then
                 local gameComplete = ""
                 if lib.isGameComplete() then
@@ -2451,6 +2472,41 @@ local runMessageWatcher = coroutine.wrap(function()
                     gameComplete = "0"
                 end
                 connection:send('requestComplete|' .. gameComplete)
+                return
+            end
+
+            -- Expects message format: "isDeathLinkEnabled"
+            -- Returns message format: "requestComplete|1 or 0"
+            if command == 'isDeathLinkEnabled' then
+                local death_link_enabled = ""
+                if lib.isDeathLinkEnabled() then
+                    death_link_enabled = "1"
+                else
+                    death_link_enabled = "0"
+                end
+                connection:send('requestComplete|' .. death_link_enabled)
+                return
+            end
+
+            -- Expects message format: "isLinkAlive"
+            -- Returns message format: "requestComplete|1 or 0"
+            if command == 'isLinkAlive' then
+                local link_is_alive = ""
+                if lib.isLinkAlive() then
+                    link_is_alive = "1"
+                else
+                    link_is_alive = "0"
+                end
+                connection:send('requestComplete|' .. link_is_alive)
+                return
+            end
+
+            -- Expects message format: "isDeathLinkEnabled"
+            -- Returns message format: "requestComplete"
+            if command == 'killLink' then
+                lib.killLink()
+                connection:send('requestComplete')
+                return
             end
         end)()
         coroutine.yield()
