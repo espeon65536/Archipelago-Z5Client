@@ -1,8 +1,8 @@
 # Ocarina of Time (Z5) Client for Archipelago
 ## Files Included:
-- `Z5Client-Win64-Setup-(version).exe`: This is the installer file. You'll need to download and run this to install
+- `Z5Client-win32-x64-(version).exe`: This is the installer file. You'll need to download and run this to install
 the client.
-- `Z5Client-Win64-Standalone-(version).zip`: This is a zip file which may be used as a stand-alone installation. It
+- `Z5Client-win32-x64-(version).zip`: This is a zip file which may be used as a stand-alone installation. It
 is not recommended to use this.
 - `get-bizhawk.ps1`: This is a Windows Powershell script which will download and configure BizHawk 2.3, which is
 currently the only version of BizHawk supported for Archipelago's implementation of OoT.
