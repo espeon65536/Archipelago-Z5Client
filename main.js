@@ -122,7 +122,10 @@ app.whenReady().then(async () => {
   }
 
   // Load the config into memory
-  const config = JSON.parse(fs.readFileSync(configPath).toString());
+  const configData = fs.readFileSync(configPath).toString();
+
+  // If the config file is empty, it must be regenerated later
+  const config = configData ? JSON.parse(configData) : {};
   const validRomHashes = [
     '5BD1FE107BF8106B2AB6650ABECD54D6'.toLowerCase(), // Compressed little-endian
     '6697768A7A7DF2DD27A692A2638EA90B'.toLowerCase(), // Compressed big-endian
