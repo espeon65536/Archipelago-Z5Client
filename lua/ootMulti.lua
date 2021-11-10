@@ -1099,7 +1099,7 @@ local read_ganons_castle_checks = function(mq_table_address)
         checks["Ganons Castle MQ Spirit Trial Sun Front Left Chest"] = chest_check(0xD, 0x9)
         checks["Ganons Castle MQ Spirit Trial Sun Back Left Chest"] = chest_check(0xD, 0x8)
         checks["Ganons Castle MQ Spirit Trial Sun Back Right Chest"] = chest_check(0xD, 0x7)
-        checks["Ganons Castle MQ Golden Gauntlets Chest"] = chest_check(0xD, 0x6)
+        checks["Ganons Castle MQ Spirit Trial Golden Gauntlets Chest"] = chest_check(0xD, 0x6)
 
         checks["Ganons Castle MQ Deku Scrub Left"] = scrub_sanity_check(0xD, 0x9)
         checks["Ganons Castle MQ Deku Scrub Center-Left"] = scrub_sanity_check(0xD, 0x6)
